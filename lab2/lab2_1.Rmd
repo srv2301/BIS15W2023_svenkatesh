@@ -64,17 +64,25 @@ We get an error here because `else` is a function in R. You also don't want to g
 1. Create three new objects, `venom_GT`, `chiron`, and `veyron`. These are the fastest cars in the world. Assign each car to its top speed. The venom_GT can go 270, chiron is 261, and veyron is 268.
 ```{r}
 venom_GT <- 270
+chiron <- 261
+veyron <- 268
 ```
 
 2. Use arithmetic to calculate the mean top speed for the cars.
 ```{r}
-
+ (270 + 261 + 268) / 3
 ```
 
 3. Use the function `mean()` to calculate the mean top speed for the cars.
 ```{r}
-
+mean(venom_GT, chiron, veyron)
 ```
+
+```{r}
+cars <- c(venom_GT, chiron, veyron)
+mean(cars)
+```
+
 
 ## Types of Data
 There are five frequently used `classes` of data: 1. numeric, 2. integer, 3. character, 4. logical, 5. complex.
@@ -129,7 +137,7 @@ new_vector <- c(7, 6.2, 5, 9, NA, 4, 9.8, 7, 3, 2)
 
 2. As we did in homework 1, calculate the mean of `new_vector`.
 ```{r}
-
+mean(new_vector)
 ```
 
 3. How do you interpret this result? What does this mean about NAs?  
@@ -139,6 +147,6 @@ new_vector <- c(7, 6.2, 5, 9, NA, 4, 9.8, 7, 3, 2)
 mean(new_vector, na.rm=T) #na.rm removes the NA values in the vector
 ```
 
-## That's it! Take a break and I will see you on Zoom!  
+## That's it! Let's take a break and then move on to part 2!
 
 -->[Home](https://jmledford3115.github.io/datascibiol/)  
