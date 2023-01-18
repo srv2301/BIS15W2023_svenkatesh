@@ -1,0 +1,57 @@
+---
+title: "Lab 3 Warmup"
+output: html_document
+date: "2023-01-17"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+plant_heights <- c(30.7, 37.6, 28.4, NA, 33.2)
+plant_heights
+```
+
+```{r}
+plant_masses <- c(4, 5.2, 3.7, NA, 4.6)
+plant_masses
+```
+
+```{r}
+plant_names <- c("Plant 1", "Plant 2", "Plant 3", "Plant 4", "Plant 5")
+```
+
+```{r}
+measurements <- c("Height", "Mass")
+```
+
+#Combining data for matrix
+```{r}
+plant_height_mass <- c(plant_heights, plant_masses)
+plant_height_mass
+```
+
+```{r}
+plant_exp_matrix <- matrix(plant_height_mass, nrow = 5, byrow = F)
+plant_exp_matrix
+```
+```{r}
+colnames(plant_exp_matrix) <- measurements
+rownames(plant_exp_matrix) <- plant_names
+plant_exp_matrix
+```
+```{r}
+height_averages <- colMeans(plant_exp_matrix, na.rm = T)
+height_averages
+```
+
+```{r}
+mass_averages <- colMeans(plant_exp_matrix, na.rm = T)
+mass_averages
+```
+
+```{r}
+final_plant_exp_matrix <- rbind(plant_exp_matrix, height_averages, mass_averages)
+final_plant_exp_matrix
+```
