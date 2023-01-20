@@ -1,0 +1,42 @@
+---
+title: "lab 4 warmup"
+output: html_document
+date: "2023-01-19"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library("tidyverse")
+```
+
+```{r}
+install.packages("palmerpenguins")
+library("palmerpenguins")
+```
+```{r}
+penguins
+```
+```{r}
+dim(penguins)
+```
+
+```{r}
+names(penguins)
+```
+
+
+```{r}
+table(penguins$island)
+```
+
+```{r}
+mean(penguins$body_mass_g, na.rm = T)
+```
+
+```{r}
+view(penguins)
+```
+
