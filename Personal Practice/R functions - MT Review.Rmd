@@ -32,7 +32,7 @@ my_treatment <- sum(x, y)
 my_treatment
 ```
 
-#Use c bind for doing an operation on more than one value
+#Use concatenate for doing an operation on more than one value
 ```{r}
 new_treatments <- c(x,y)
 mean(new_treatments)
@@ -73,7 +73,7 @@ mean(new2_treatment, na.rm = T) # na.rm removes the NA from the vector
 
 ```{r}
 my_new_numbers <- c(1:12)
-my_new_numbers #can generate a vector number sequence by concatonate with round brackets and : for a range of numbers
+my_new_numbers #can generate a vector number sequence by concatenate with round brackets and : for a range of numbers
 ```
 
 # Can pull out elements in a vector using [] function
