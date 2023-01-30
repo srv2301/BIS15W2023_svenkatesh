@@ -247,4 +247,10 @@ names(people)
   #filter(race != "Human")
 ```
 
+# adorn function - gives the percent in the tabyl function with desired no. of digits
+```{r}
+msleep24 %>% 
+  tabyl(vore) %>% 
+  adorn_pct_formatting(digits=4)
+```
 
