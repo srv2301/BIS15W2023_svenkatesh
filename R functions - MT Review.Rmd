@@ -1,0 +1,138 @@
+---
+title: "R functions - MT Review"
+output: html_document
+date: "2023-01-29"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# To get working directory
+```{r}
+getwd()
+```
+
+# R, R studio and GitHUb
+R - statistics based programming language, RStudio is the console that allows for the execution of code (a DUI), GitHUB is an open community for programmers to show, store and create software projects.
+
+#Vector - string of values, a data structure used to arrange data of the same type in R. 
+```{r}
+x <- c(4, 6, 2, 1)
+mean(x)
+median(x)
+sd(x)
+```
+
+# Object 
+```{r}
+x <- 32
+y <- 45
+my_treatment <- sum(x, y)
+my_treatment
+```
+
+#Use c bind for doing an operation on more than one value
+```{r}
+new_treatments <- c(x,y)
+mean(new_treatments)
+```
+
+# Types/classes of data - numeric, logical, character, integer, complex
+```{r}
+my_numeric <- 42
+my_integer <- 2L 
+my_character <- "universe"
+my_logical <- FALSE
+my_complex <- 2+4i
+```
+
+Use the class() to figure out what class of data you're analyzing
+Use the is() and as() functions to clarify a type of data
+```{r}
+is.numeric(my_treatment)
+```
+
+```{r}
+my_new_treatment <- as.character(my_treatment)
+# as.character makes the result of my_treatment a character, cannot perform operations on it now
+```
+
+#NA's
+```{r}
+missing_info <- NA
+is.na(missing_info) # is missing_info an NA
+anyNA(missing_info) #are there any NA's in missing_info
+```
+
+```{r}
+new2_treatment <- c(2, 5, 7, NA)
+mean(new2_treatment) #mean will show NA since it has an NA value
+mean(new2_treatment, na.rm = T) # na.rm removes the NA from the vector
+```
+
+```{r}
+my_new_numbers <- c(1:12)
+my_new_numbers #can generate a vector number sequence by concatonate with round brackets and : for a range of numbers
+```
+
+# Can pull out elements in a vector using [] function
+```{r}
+x[3] # this would pull out the 3rd number in the vector which is '2'
+```
+
+# Use operators like < or == or >= to find a range of values
+```{r}
+my_new_numbers < 6
+```
+
+```{r}
+my_new_numbers[my_new_numbers >= 4] #takes out the specific numeric values from the vector less than or equal to 4
+```
+
+#Data Matrix - series of stacked vectors with data of the same type
+```{r}
+movie_1 <- c(43,23)
+movie_2 <- c(33,15)
+movie_3 <- c(45,35)
+movie_4 <- c(33,22)
+```
+
+```{r}
+earnings <- c(movie_1, movie_2, movie_3, movie_4)
+```
+
+```{r}
+earnings_matrix <- matrix(earnings, nrow = 4, byrow = T)
+```
+
+```{r}
+regions <- c("US", "World")
+names_movies <- c("Movie_1", "Movie_2", "Movie_3", "Movie_4")
+```
+
+```{r}
+colnames(earnings_matrix) <- regions
+rownames(earnings_matrix) <- names_movies
+earnings_matrix
+```
+
+```{r}
+global <- rowSums(earnings_matrix)
+all_earnings_matrix <- cbind(earnings_matrix, global) # cbind binds the new column to the matrix, 'rbind' binds the new row to the matrix
+all_earnings_matrix
+```
+
+# Selecting values in the matrix
+```{r}
+all_earnings_matrix[4,2]
+# Adding a colon `:` selects the specified elements in a column.
+all_earnings_matrix[2:3] # or [, 2] selects just the second column
+```
+
+```{r}
+# Can select the mean of a row by using rowMeans or colMeans
+mean_earnings <- rowMeans(all_earnings_matrix)
+mean_earnings
+```
+
