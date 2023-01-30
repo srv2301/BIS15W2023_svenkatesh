@@ -1,0 +1,226 @@
+---
+title: "MT Review 2"
+output: html_document
+date: "2023-01-30"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data Frame - similar to a spreadsheet, can store data of many different classes
+```{r}
+Sex <- c("Male", "Female", "Female")
+Height <- c(101.5, 203.3, 112.8)
+Weight <- c(24.4, 25.8, 20.9)
+```
+
+```{r}
+people <- data.frame(Sex, Height, Weight) # data.frame function for the 3 vectors forms the data frame
+people
+```
+
+# Functions for a data frame
+```{r}
+names(people)
+str(people)
+dim(people)
+glimpse(people)
+```
+
+# Renaming the columns in the data frame
+```{r}
+people <- data.frame(sex = Sex, height = Height, weight = Weight)
+names(people)
+```
+
+# Selecting rows or columns in a data frame
+```{r}
+people[1,] # First row
+people[ ,3] # Third Column
+```
+
+```{r}
+just_height <- people$height # '$' generates values for the specific column in the data frame
+just_height # can also do mean(just_height) to find the mean of the height column in the data frame
+```
+
+# Adding rows & columns
+```{r}
+new_person <- c("Female", 133.5, 21.2)
+people <- rbind(people, new_person) # rbind for new rows
+people
+```
+
+```{r}
+people$namedrop <- c("Emil", "Stella", "Mary", "Artis")
+people
+```
+
+# .csv files
+```{r}
+#write.csv(people, file = "people_data.csv",row.names = FALSE)
+#To retrieve a .csv file -
+#people_data <- reader::read_csv("people_data.csv") - to be more specific you can add data/ before the name of the .csv file
+```
+
+# Functions for data frames
+```{r}
+summary(people)
+glimpse(people)
+nrow(people)
+ncol(people) #number of rows and columns in the 'people' data frame
+dim(people)
+names(people)
+```
+
+```{r}
+head(people, n=2) # head prints the first n rows of a data frame
+tail(people, n=2) # tail prints the last n rows of a data frame
+```
+
+```{r}
+table(people$height) # table shows the number observations in a variable, used when question says 'count' or no. of a variable
+```
+
+# Filter function
+```{r}
+small_humans <- filter(people, height < 200)
+small_humans
+```
+
+# Changing the character of a column in a data frame
+```{r}
+people$height <- as.factor(people$height) # as.factor changes the class of the variable in a data frame
+class(people$height)
+```
+
+# Mean function for columns in a filtered data frame
+```{r}
+# Let us use the small_humans function
+mean(small_humans$height, na.rm = T)
+```
+
+# Max Function - used when finding the highest value of a variable
+```{r}
+max(people$height, na.rm = T) # finding the highest value in the height column
+```
+
+```{r}
+filter(people, height== 203.3) # filtering the data frame to find the row with the highest height value
+```
+
+# Select function - only displays the columns that you want from a data frame
+```{r}
+select(people, sex, weight)
+```
+
+```{r}
+select(people, sex:weight) # ':' used for a range of columns - in this case we want the columns from sex to weight
+```
+
+```{r}
+select(people, -weight) # '-' used to display all columns besides the one subtracted
+```
+
+Options to select columns based on a specific criteria include:  
+1. ends_with() = Select columns that end with a character string  
+2. contains() = Select columns that contain a character string  
+3. matches() = Select columns that match a regular expression  
+4. one_of() = Select columns names that are from a group of names 
+
+```{r}
+select(people, contains("sex")) #make sure to have the column name in quotations
+```
+
+```{r}
+select(people, matches("h.+ght")) # selected a column with a name that starts with a letter 'h' and ends with a string 'ght'
+```
+
+# Selection based on class of column
+```{r}
+select_if(people, is.numeric) # is.numeric displays the columns that have just numbers
+```
+
+```{r}
+select_if(people, ~!is.character(.)) # using the ~! before the is() function and following it with (.) removes the columns of that class
+```
+
+# Renaming the whole column/data frame
+```{r}
+people_new <- select_all(people, toupper) # toupper() makes all the names uppercase while tolower makes all the names lowercase
+people_new
+```
+
+# More filter functions
+```{r}
+filter(people, height!= "112.8") # the '!' function removes that specific value from the column 
+```
+
+```{r}
+filter(people, height %in% c(101.5, 203.3)) #the %in% operator filters the rows in the specific column for the given values
+```
+
+```{r}
+filter(people, between(height, 100, 205)) #between is used for a range of values
+```
+
+```{r}
+filter(people, near(weight, 24, tol = 2.2)) #near() used to generate a range of values near a number, tolerance is specified - '+-' 
+```
+
+`filter(condition1, condition2)` will return rows where both conditions are met.  
++ `filter(condition1, !condition2)` will return all rows where condition one is true but condition 2 is not.  
++ `filter(condition1 | condition2)` will return rows where condition 1 or condition 2 is met.  
++ `filter(xor(condition1, condition2)` will return all rows where only one of the conditions is met, and not when both conditions are met.
+
+```{r}
+filter(people, height>150 & weight<25) # '&' used for both conditions being met for a variable in a row (someone height>150 & weight<25)
+```
+
+```{r}
+filter(people, height>150 | weight<25) # '|' generates variables with either of the two conditions
+```
+
+```{r}
+arrange(people, height) #arrange() classifies the data in ascending order, descending order would be arrange(people, -height)
+```
+
+# Pipes - uses %>% to combine select() and filter() or other functions
+```{r}
+people %>% 
+  filter(height > 150) %>% 
+  select(sex, height)
+```
+
+```{r}
+people %>% # arranged weight > 23 in descending order
+  filter(weight>23) %>% 
+  arrange(-weight)
+```
+
+# Mutate - allows us to create new columns from existing columns in the data frame
+```{r}
+people %>% 
+  mutate(height_weight_mean = height/weight) %>% #we added a new column for h/w
+  select(height, weight, height_weight_mean) %>% 
+  arrange(height)
+```
+
+```{r}
+people %>% 
+  mutate_all(toupper) #changes all the variable names in the data frame to lowercase (or uppercase with 'toupper')
+```
+
+```{r}
+people %>% 
+  mutate(across(c(sex), toupper)) #mutate(across) changes names for all the variables for the selected columns
+```
+
+# If else function
+```{r}
+people %>% 
+  mutate(people_2 = if_else(sex == "Male","Female", sex)) %>% 
+  select(sex, height, weight, people_2)
+```
+
