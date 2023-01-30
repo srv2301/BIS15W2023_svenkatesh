@@ -214,7 +214,7 @@ people %>%
 
 ```{r}
 people %>% 
-  mutate(across(c(sex), toupper)) #mutate(across) changes names for all the variables for the selected columns
+  mutate(across(c(sex), tolower)) #mutate(across) changes names for all the variables for the selected columns
 ```
 
 # If else function
@@ -223,4 +223,28 @@ people %>%
   mutate(people_2 = if_else(sex == "Male","Female", sex)) %>% 
   select(sex, height, weight, people_2)
 ```
+
+# Janitor function to clean up
+```{r}
+library("janitor")
+```
+
+```{r}
+people <- janitor::clean_names(people)
+names(people)
+```
+
+# tabyl function in janitor
+```{r}
+#tabyl(superhero_info, alignment) #from the superhero dataframe, gives the percentage/proportion of things in a column
+
+#Finding the neutral guys in the alignment column
+# superhero_info %>%
+  #filter(alignment == "neutral")
+
+#Finding the non-humans in the race column
+# superhero_info %>% 
+  #filter(race != "Human")
+```
+
 
