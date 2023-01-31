@@ -256,23 +256,3 @@ msleep24 %>%
   tabyl(vore) %>% 
   adorn_pct_formatting(digits=4)
 ```
-
-```{r}
-msleep24 <- msleep %>% 
-  mutate(sleep_total_24 = sleep_total/24) %>% 
-  select(name, vore, sleep_total_24) %>% 
-  filter(!is.na(vore)) %>% 
-  filter(sleep_total_24 < 0.3) %>% 
-  arrange(-sleep_total_24)
-msleep24
-
-msleep24 %>% count(vore)
-
-# practice 1
-msleep %>% 
-  group_by(order, vore) %>% 
-  summarize(n=n())
-#2. msleep %>% 
-  tabyl(order, vore)
-```
-
