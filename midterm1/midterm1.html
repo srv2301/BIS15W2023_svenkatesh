@@ -506,27 +506,21 @@ represented in the data?</p>
 ##   n_orders
 ##      &lt;int&gt;
 ## 1       19</code></pre>
+<p>There are 19 distinct orders of birds.</p>
 <p>Problem 4. (2 points) Which habitat has the highest diversity (number
 of species) in the data?</p>
 <pre class="r"><code>ecosphere %&gt;% 
-  group_by(habitat, population_size) %&gt;% 
-  select(habitat, population_size) %&gt;% 
-  arrange(-population_size)</code></pre>
-<pre><code>## # A tibble: 551 × 2
-## # Groups:   habitat, population_size [223]
-##    habitat   population_size
-##    &lt;chr&gt;               &lt;dbl&gt;
-##  1 Woodland        300000000
-##  2 Woodland        210000000
-##  3 Woodland        200000000
-##  4 Grassland       170000000
-##  5 Woodland        140000000
-##  6 Various         130000000
-##  7 Woodland        130000000
-##  8 Various         120000000
-##  9 Various         110000000
-## 10 Woodland        110000000
-## # … with 541 more rows</code></pre>
+  tabyl(habitat)</code></pre>
+<pre><code>##    habitat   n    percent valid_percent
+##  Grassland  36 0.06533575    0.06703911
+##      Ocean  44 0.07985481    0.08193669
+##  Shrubland  82 0.14882033    0.15270019
+##    Various  45 0.08166969    0.08379888
+##    Wetland 153 0.27767695    0.28491620
+##   Woodland 177 0.32123412    0.32960894
+##       &lt;NA&gt;  14 0.02540835            NA</code></pre>
+<p>Woodland has the highest number of species in the data (177
+species).</p>
 <p>Run the code below to learn about the <code>slice</code> function.
 Look specifically at the examples (at the bottom) for
 <code>slice_max()</code> and <code>slice_min()</code>. If you are still
@@ -569,6 +563,7 @@ largest and smallest winter range?</p>
 ## #   upper_95_percent_ci &lt;dbl&gt;, and abbreviated variable names ¹​common_name,
 ## #   ²​scientific_name, ³​life_expectancy, ⁴​urban_affiliate, ⁵​migratory_strategy,
 ## #   ⁶​log10_mass</code></pre>
+<p>Sooty Shearwater has the highest winter range.</p>
 <pre class="r"><code>ecosphere %&gt;% 
   dplyr::slice_min(winter_range_area)</code></pre>
 <pre><code>## # A tibble: 1 × 21
@@ -582,6 +577,7 @@ largest and smallest winter range?</p>
 ## #   upper_95_percent_ci &lt;dbl&gt;, and abbreviated variable names ¹​common_name,
 ## #   ²​scientific_name, ³​life_expectancy, ⁴​urban_affiliate, ⁵​migratory_strategy,
 ## #   ⁶​log10_mass</code></pre>
+<p>Skylark has the lowest winter range.</p>
 <p>Problem 6. (2 points) The family Anatidae includes ducks, geese, and
 swans. Make a new object <code>ducks</code> that only includes species
 in the family Anatidae. Restrict this new dataframe to include all
@@ -626,6 +622,7 @@ exceptions, list the species below.</p>
 ## #   and abbreviated variable names ¹​common_name, ²​scientific_name,
 ## #   ³​life_expectancy, ⁴​urban_affiliate, ⁵​migratory_strategy, ⁶​log10_mass,
 ## #   ⁷​mean_eggs_per_clutch, ⁸​mean_age_at_sexual_maturity</code></pre>
+<p>The exception is the Common Eider duck, which lives in the ocean.</p>
 <p>Problem 8. (4 points) In ducks, how is mean body mass associated with
 migratory strategy? Do the ducks that migrate long distances have high
 or low average body mass?</p>
@@ -641,8 +638,9 @@ or low average body mass?</p>
 ## 3 Short                        2.98
 ## 4 Withdrawal                   2.92
 ## 5 Long                         2.87</code></pre>
-<p>Mean body mass appears to vary for each migratory strategy. Ducks
-that migrate long distances have a lower mean body mass</p>
+<p>Mean body mass appears to be higher for birds with a shorter
+migratory strategy and lower for birds with longer migratory strategy.
+Ducks that migrate long distances have a lower mean body mass.</p>
 <p>Problem 9. (2 points) Accipitridae is the family that includes
 eagles, hawks, kites, and osprey. First, make a new object
 <code>eagles</code> that only includes species in the family
@@ -655,20 +653,21 @@ common_name, scientific_name, and population_size.</p>
 population size less than 250,000 individuals is threatened. Make a new
 column <code>conservation_status</code> that shows whether or not a
 species is threatened.</p>
-<pre class="r"><code>eagles %&gt;% 
-  mutate(conservation_status = population_size &lt; 250)</code></pre>
+<pre class="r"><code>eagles &lt;- eagles %&gt;% 
+  mutate(conservation_status = population_size &lt; 2.50e+05)
+eagles</code></pre>
 <pre><code>## # A tibble: 20 × 4
 ##    common_name         scientific_name          population_size conservation_s…¹
 ##    &lt;chr&gt;               &lt;chr&gt;                              &lt;dbl&gt; &lt;lgl&gt;           
 ##  1 Bald Eagle          Haliaeetus leucocephalus              NA NA              
 ##  2 Broad-winged Hawk   Buteo platypterus                1700000 FALSE           
 ##  3 Cooper&#39;s Hawk       Accipiter cooperii                700000 FALSE           
-##  4 Ferruginous Hawk    Buteo regalis                      80000 FALSE           
-##  5 Golden Eagle        Aquila chrysaetos                 130000 FALSE           
+##  4 Ferruginous Hawk    Buteo regalis                      80000 TRUE            
+##  5 Golden Eagle        Aquila chrysaetos                 130000 TRUE            
 ##  6 Gray Hawk           Buteo nitidus                         NA NA              
-##  7 Harris&#39;s Hawk       Parabuteo unicinctus               50000 FALSE           
+##  7 Harris&#39;s Hawk       Parabuteo unicinctus               50000 TRUE            
 ##  8 Hook-billed Kite    Chondrohierax uncinatus               NA NA              
-##  9 Northern Goshawk    Accipiter gentilis                200000 FALSE           
+##  9 Northern Goshawk    Accipiter gentilis                200000 TRUE            
 ## 10 Northern Harrier    Circus cyaneus                    700000 FALSE           
 ## 11 Red-shouldered Hawk Buteo lineatus                   1100000 FALSE           
 ## 12 Red-tailed Hawk     Buteo jamaicensis                2000000 FALSE           
@@ -684,12 +683,42 @@ species is threatened.</p>
 <p>Problem 11. (2 points) Consider the results from questions 9 and 10.
 Are there any species for which their threatened status needs further
 study? How do you know?</p>
+<pre class="r"><code>anyNA(eagles$conservation_status)</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<pre class="r"><code>eagles %&gt;% 
+  filter(conservation_status %in% c(NA))</code></pre>
+<pre><code>## # A tibble: 8 × 4
+##   common_name       scientific_name          population_size conservation_status
+##   &lt;chr&gt;             &lt;chr&gt;                              &lt;dbl&gt; &lt;lgl&gt;              
+## 1 Bald Eagle        Haliaeetus leucocephalus              NA NA                 
+## 2 Gray Hawk         Buteo nitidus                         NA NA                 
+## 3 Hook-billed Kite  Chondrohierax uncinatus               NA NA                 
+## 4 Short-tailed Hawk Buteo brachyurus                      NA NA                 
+## 5 Snail Kite        Rostrhamus sociabilis                 NA NA                 
+## 6 White-tailed Hawk Buteo albicaudatus                    NA NA                 
+## 7 White-tailed Kite Elanus leucurus                       NA NA                 
+## 8 Zone-tailed Hawk  Buteo albonotatus                     NA NA</code></pre>
+<p>The threatened species with NA’s would require further study since
+data on them are inconclusive.</p>
 <p>Problem 12. (4 points) Use the <code>ecosphere</code> data to perform
 one exploratory analysis of your choice. The analysis must have a
 minimum of three lines and two functions. You must also clearly state
 the question you are attempting to answer.</p>
+<pre class="r"><code>ecosphere %&gt;% 
+  group_by(habitat) %&gt;% 
+  filter(family == &quot;Trochilidae&quot;) %&gt;% 
+  summarise(mean_trochilidae_mass = mean(log10_mass, na.rm = T))%&gt;% 
+  arrange(mean_trochilidae_mass)</code></pre>
+<pre><code>## # A tibble: 2 × 2
+##   habitat   mean_trochilidae_mass
+##   &lt;chr&gt;                     &lt;dbl&gt;
+## 1 Shrubland                 0.505
+## 2 Woodland                  0.622</code></pre>
+<p>I attempted to find the average mass for the Trochilidae family of
+Hummingbirds for each habitat they belong to.</p>
 <p>Please provide the names of the students you have worked with with
 during the exam:</p>
+<pre class="r"><code>#Isabella Szalay</code></pre>
 <p>Please be 100% sure your exam is saved, knitted, and pushed to your
 github repository. No need to submit a link on canvas, we will find your
 exam in your repository.</p>

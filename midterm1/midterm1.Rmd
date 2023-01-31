@@ -49,14 +49,15 @@ Problem 3. (2 points) How many distinct orders of birds are represented in the d
 ecosphere %>% 
   summarise(n_orders = n_distinct(order))
 ```
+There are 19 distinct orders of birds.
 
 Problem 4. (2 points) Which habitat has the highest diversity (number of species) in the data?
+
 ```{r}
 ecosphere %>% 
-  group_by(habitat, population_size) %>% 
-  select(habitat, population_size) %>% 
-  arrange(-population_size)
+  tabyl(habitat)
 ```
+Woodland has the highest number of species in the data (177 species).
 
 Run the code below to learn about the `slice` function. Look specifically at the examples (at the bottom) for `slice_max()` and `slice_min()`. If you are still unsure, try looking up examples online (https://rpubs.com/techanswers88/dplyr-slice). Use this new function to answer question 5 below.
 ```{r}
@@ -68,11 +69,13 @@ Problem 5. (4 points) Using the `slice_max()` or `slice_min()` function describe
 ecosphere %>% 
   dplyr::slice_max(winter_range_area)
 ```
+Sooty Shearwater has the highest winter range.
 
 ```{r}
 ecosphere %>% 
   dplyr::slice_min(winter_range_area)
 ```
+Skylark has the lowest winter range.
 
 Problem 6. (2 points) The family Anatidae includes ducks, geese, and swans. Make a new object `ducks` that only includes species in the family Anatidae. Restrict this new dataframe to include all variables except order and family.
 ```{r}
@@ -91,6 +94,7 @@ ducks %>%
   group_by(habitat) %>% 
   filter(habitat!= "Wetland")
 ```
+The exception is the Common Eider duck, which lives in the ocean.
 
 Problem 8. (4 points) In ducks, how is mean body mass associated with migratory strategy? Do the ducks that migrate long distances have high or low average body mass?
 ```{r}
@@ -99,7 +103,7 @@ ducks %>%
   summarise(mean_body_mass = mean(log10_mass, na.rm =T)) %>% 
   arrange(-mean_body_mass)
 ```
-Mean body mass appears to vary for each migratory strategy. Ducks that migrate long distances have a lower mean body mass
+Mean body mass appears to be higher for birds with a shorter migratory strategy and lower for birds with longer migratory strategy. Ducks that migrate long distances have a lower mean body mass.
 
 Problem 9. (2 points) Accipitridae is the family that includes eagles, hawks, kites, and osprey. First, make a new object `eagles` that only includes species in the family Accipitridae. Next, restrict these data to only include the variables common_name, scientific_name, and population_size.
 ```{r}
@@ -110,23 +114,35 @@ eagles <- ecosphere %>%
 
 Problem 10. (4 points) In the eagles data, any species with a population size less than 250,000 individuals is threatened. Make a new column `conservation_status` that shows whether or not a species is threatened.
 ```{r}
-eagles %>% 
-  mutate(conservation_status = population_size < 250)
+eagles <- eagles %>% 
+  mutate(conservation_status = population_size < 2.50e+05)
+eagles
 ```
 
 Problem 11. (2 points) Consider the results from questions 9 and 10. Are there any species for which their threatened status needs further study? How do you know?
 ```{r}
-
+anyNA(eagles$conservation_status)
 ```
+
+```{r}
+eagles %>% 
+  filter(conservation_status %in% c(NA))
+```
+The threatened species with NA's would require further study since data on them are inconclusive.
 
 Problem 12. (4 points) Use the `ecosphere` data to perform one exploratory analysis of your choice. The analysis must have a minimum of three lines and two functions. You must also clearly state the question you are attempting to answer.
 ```{r}
-
+ecosphere %>% 
+  group_by(habitat) %>% 
+  filter(family == "Trochilidae") %>% 
+  summarise(mean_trochilidae_mass = mean(log10_mass, na.rm = T))%>% 
+  arrange(mean_trochilidae_mass)
 ```
+I attempted to find the average mass for the Trochilidae family of Hummingbirds for each habitat they belong to.
 
 Please provide the names of the students you have worked with with during the exam:
 ```{r}
-
+#Isabella Szalay
 ```
 
 Please be 100% sure your exam is saved, knitted, and pushed to your github repository. No need to submit a link on canvas, we will find your exam in your repository.

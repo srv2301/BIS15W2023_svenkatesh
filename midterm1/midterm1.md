@@ -147,33 +147,27 @@ ecosphere %>%
 ##      <int>
 ## 1       19
 ```
+There are 19 distinct orders of birds.
 
 Problem 4. (2 points) Which habitat has the highest diversity (number of species) in the data?
 
+
 ```r
 ecosphere %>% 
-  group_by(habitat, population_size) %>% 
-  select(habitat, population_size) %>% 
-  arrange(-population_size)
+  tabyl(habitat)
 ```
 
 ```
-## # A tibble: 551 × 2
-## # Groups:   habitat, population_size [223]
-##    habitat   population_size
-##    <chr>               <dbl>
-##  1 Woodland        300000000
-##  2 Woodland        210000000
-##  3 Woodland        200000000
-##  4 Grassland       170000000
-##  5 Woodland        140000000
-##  6 Various         130000000
-##  7 Woodland        130000000
-##  8 Various         120000000
-##  9 Various         110000000
-## 10 Woodland        110000000
-## # … with 541 more rows
+##    habitat   n    percent valid_percent
+##  Grassland  36 0.06533575    0.06703911
+##      Ocean  44 0.07985481    0.08193669
+##  Shrubland  82 0.14882033    0.15270019
+##    Various  45 0.08166969    0.08379888
+##    Wetland 153 0.27767695    0.28491620
+##   Woodland 177 0.32123412    0.32960894
+##       <NA>  14 0.02540835            NA
 ```
+Woodland has the highest number of species in the data (177 species).
 
 Run the code below to learn about the `slice` function. Look specifically at the examples (at the bottom) for `slice_max()` and `slice_min()`. If you are still unsure, try looking up examples online (https://rpubs.com/techanswers88/dplyr-slice). Use this new function to answer question 5 below.
 
@@ -224,6 +218,7 @@ ecosphere %>%
 ## #   ²​scientific_name, ³​life_expectancy, ⁴​urban_affiliate, ⁵​migratory_strategy,
 ## #   ⁶​log10_mass
 ```
+Sooty Shearwater has the highest winter range.
 
 
 ```r
@@ -244,6 +239,7 @@ ecosphere %>%
 ## #   ²​scientific_name, ³​life_expectancy, ⁴​urban_affiliate, ⁵​migratory_strategy,
 ## #   ⁶​log10_mass
 ```
+Skylark has the lowest winter range.
 
 Problem 6. (2 points) The family Anatidae includes ducks, geese, and swans. Make a new object `ducks` that only includes species in the family Anatidae. Restrict this new dataframe to include all variables except order and family.
 
@@ -301,6 +297,7 @@ ducks %>%
 ## #   ³​life_expectancy, ⁴​urban_affiliate, ⁵​migratory_strategy, ⁶​log10_mass,
 ## #   ⁷​mean_eggs_per_clutch, ⁸​mean_age_at_sexual_maturity
 ```
+The exception is the Common Eider duck, which lives in the ocean.
 
 Problem 8. (4 points) In ducks, how is mean body mass associated with migratory strategy? Do the ducks that migrate long distances have high or low average body mass?
 
@@ -321,7 +318,7 @@ ducks %>%
 ## 4 Withdrawal                   2.92
 ## 5 Long                         2.87
 ```
-Mean body mass appears to vary for each migratory strategy. Ducks that migrate long distances have a lower mean body mass
+Mean body mass appears to be higher for birds with a shorter migratory strategy and lower for birds with longer migratory strategy. Ducks that migrate long distances have a lower mean body mass.
 
 Problem 9. (2 points) Accipitridae is the family that includes eagles, hawks, kites, and osprey. First, make a new object `eagles` that only includes species in the family Accipitridae. Next, restrict these data to only include the variables common_name, scientific_name, and population_size.
 
@@ -334,8 +331,9 @@ eagles <- ecosphere %>%
 Problem 10. (4 points) In the eagles data, any species with a population size less than 250,000 individuals is threatened. Make a new column `conservation_status` that shows whether or not a species is threatened.
 
 ```r
-eagles %>% 
-  mutate(conservation_status = population_size < 250)
+eagles <- eagles %>% 
+  mutate(conservation_status = population_size < 2.50e+05)
+eagles
 ```
 
 ```
@@ -345,12 +343,12 @@ eagles %>%
 ##  1 Bald Eagle          Haliaeetus leucocephalus              NA NA              
 ##  2 Broad-winged Hawk   Buteo platypterus                1700000 FALSE           
 ##  3 Cooper's Hawk       Accipiter cooperii                700000 FALSE           
-##  4 Ferruginous Hawk    Buteo regalis                      80000 FALSE           
-##  5 Golden Eagle        Aquila chrysaetos                 130000 FALSE           
+##  4 Ferruginous Hawk    Buteo regalis                      80000 TRUE            
+##  5 Golden Eagle        Aquila chrysaetos                 130000 TRUE            
 ##  6 Gray Hawk           Buteo nitidus                         NA NA              
-##  7 Harris's Hawk       Parabuteo unicinctus               50000 FALSE           
+##  7 Harris's Hawk       Parabuteo unicinctus               50000 TRUE            
 ##  8 Hook-billed Kite    Chondrohierax uncinatus               NA NA              
-##  9 Northern Goshawk    Accipiter gentilis                200000 FALSE           
+##  9 Northern Goshawk    Accipiter gentilis                200000 TRUE            
 ## 10 Northern Harrier    Circus cyaneus                    700000 FALSE           
 ## 11 Red-shouldered Hawk Buteo lineatus                   1100000 FALSE           
 ## 12 Red-tailed Hawk     Buteo jamaicensis                2000000 FALSE           
@@ -367,11 +365,58 @@ eagles %>%
 
 Problem 11. (2 points) Consider the results from questions 9 and 10. Are there any species for which their threatened status needs further study? How do you know?
 
+```r
+anyNA(eagles$conservation_status)
+```
+
+```
+## [1] TRUE
+```
+
+
+```r
+eagles %>% 
+  filter(conservation_status %in% c(NA))
+```
+
+```
+## # A tibble: 8 × 4
+##   common_name       scientific_name          population_size conservation_status
+##   <chr>             <chr>                              <dbl> <lgl>              
+## 1 Bald Eagle        Haliaeetus leucocephalus              NA NA                 
+## 2 Gray Hawk         Buteo nitidus                         NA NA                 
+## 3 Hook-billed Kite  Chondrohierax uncinatus               NA NA                 
+## 4 Short-tailed Hawk Buteo brachyurus                      NA NA                 
+## 5 Snail Kite        Rostrhamus sociabilis                 NA NA                 
+## 6 White-tailed Hawk Buteo albicaudatus                    NA NA                 
+## 7 White-tailed Kite Elanus leucurus                       NA NA                 
+## 8 Zone-tailed Hawk  Buteo albonotatus                     NA NA
+```
+The threatened species with NA's would require further study since data on them are inconclusive.
 
 Problem 12. (4 points) Use the `ecosphere` data to perform one exploratory analysis of your choice. The analysis must have a minimum of three lines and two functions. You must also clearly state the question you are attempting to answer.
 
+```r
+ecosphere %>% 
+  group_by(habitat) %>% 
+  filter(family == "Trochilidae") %>% 
+  summarise(mean_trochilidae_mass = mean(log10_mass, na.rm = T))%>% 
+  arrange(mean_trochilidae_mass)
+```
+
+```
+## # A tibble: 2 × 2
+##   habitat   mean_trochilidae_mass
+##   <chr>                     <dbl>
+## 1 Shrubland                 0.505
+## 2 Woodland                  0.622
+```
+I attempted to find the average mass for the Trochilidae family of Hummingbirds for each habitat they belong to.
 
 Please provide the names of the students you have worked with with during the exam:
 
+```r
+#Isabella Szalay
+```
 
 Please be 100% sure your exam is saved, knitted, and pushed to your github repository. No need to submit a link on canvas, we will find your exam in your repository.
