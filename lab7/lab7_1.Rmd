@@ -58,22 +58,34 @@ As I showed in lab 6, part 2 `tabyl()` will also produce counts, but the output 
 penguins %>% 
   tabyl(island, species)
 ```
+```{r}
+view(penguins)
+```
 
 ## Practice
 1. Produce a summary of the mean for bill_length_mm, bill_depth_mm, flipper_length_mm, and body_mass_g within Adelie penguins only. Be sure to provide the number of samples.
 ```{r}
-
+penguins %>% 
+  filter(species == "Adelie") %>% 
+  summarise(mean_bill_length = mean(bill_length_mm, na.rm = T),
+            mean_bill_depth = mean(bill_depth_mm, na.rm = T),
+            mean_flipper = mean(flipper_length_mm, na.rm = T),
+            mean_body_mass = mean(body_mass_g, na.rm = T),
+            n_samples = n())
 ```
 
 2. How does the mean of `bill_length_mm` compare between penguin species?
 ```{r}
-
+penguins %>% 
+  group_by(species) %>% 
+  summarise(mean_bill_length = mean(bill_length_mm, na.rm = T),
+            n_penguins = n())
 ```
 
 
 3. For some penguins, their sex is listed as NA. Where do these penguins occur?
 ```{r}
-
+penguins %>%  count(sex, island)
 ```
 
 ## `across()`
@@ -128,11 +140,17 @@ penguins %>%
 ## Practice
 1. Produce separate summaries of the mean and standard deviation for bill_length_mm, bill_depth_mm, and flipper_length_mm for each penguin species. Be sure to provide the number of samples.  
 ```{r}
-
+penguins %>% 
+  group_by(species) %>% 
+  summarize(across(contains("mm"), mean, na.rm=T),
+            n_samples=n())
 ```
 
 ```{r}
-
+penguins %>% 
+  group_by(species) %>% 
+  summarize(across(contains("mm"), sd, na.rm=T),
+            n_samples=n())
 ```
 
 ## That's it! Let's take a break and then move on to part 2! 
