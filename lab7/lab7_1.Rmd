@@ -127,7 +127,7 @@ penguins %>%
 Operators can also work, here I am summarizing `n_distinct()` across all variables except `species`, `island`, and `sex`.
 ```{r}
 penguins %>%
-  summarize(across(!c(species, island, sex), 
+  summarize(across(!c(species, island, sex, year), 
                    n_distinct))
 ```
 
