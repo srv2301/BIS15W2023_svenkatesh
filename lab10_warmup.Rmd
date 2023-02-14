@@ -1,0 +1,38 @@
+---
+title: "lab10_warmup"
+output: html_document
+date: "2023-02-14"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+```
+
+
+```{r}
+homerange <- read_csv("lab10/data/Tamburelloetal_HomeRangeDatabase.csv")
+```
+
+```{r}
+homerange
+```
+```{r}
+homerange %>% 
+  group_by(class) %>% 
+  summarise(min_mass = min(log10.mass),
+            max_mass = max(log10.mass),
+            mean_mass = mean(log10.mass))
+```
+
+```{r}
+homerange %>% 
+  ggplot(aes(x=class, y=log10.mass))+
+  geom_boxplot()
+```
+

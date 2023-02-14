@@ -112,7 +112,7 @@ Here is the same plot oriented vertically.
 homerange %>% 
   ggplot(aes(x = taxon, fill = trophic.guild)) +
   geom_bar(position = "dodge") +
-  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) + #angle of the text axis variable names
   labs(title = "Observations by Taxon in Homerange Data",
        x = "Taxonomic Group",
        fill= "Trophic Guild")
