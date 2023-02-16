@@ -189,8 +189,12 @@ deserts %>%
 ```r
 deserts %>% 
   ggplot(aes(x=taxa, fill= plot_type))+
-  geom_bar()+
-  scale_y_log10()
+  geom_bar(position = "dodge")+
+  scale_y_log10()+
+  theme(axis.text.x=element_text(hjust=0.5))+
+  labs(title = "Proportion of inidivduals for each taxa",
+       x="Taxa",
+       y= "Log Scaled n")
 ```
 
 ![](lab10_hw_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
@@ -201,7 +205,10 @@ deserts %>%
 deserts %>% 
   filter(weight!= "NA") %>% 
   ggplot(aes(x=weight, y=species))+
-  geom_boxplot()
+  geom_boxplot()+
+  labs(title= "Range of weight for each species",
+       x= "Weight",
+       y = "Species")
 ```
 
 ![](lab10_hw_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
@@ -213,7 +220,10 @@ deserts %>%
   filter(weight!= "NA") %>% 
   ggplot(aes(x=weight, y=species))+
   geom_boxplot()+
-  geom_point()
+  geom_point(size = 0.75)+
+  labs(title= "Range of weight for each species",
+       x= "Weight",
+       y = "Species")
 ```
 
 ![](lab10_hw_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
@@ -224,7 +234,10 @@ deserts %>%
 deserts %>% 
   filter(species== "merriami") %>% 
   ggplot(aes(x=year))+
-  geom_bar()
+  geom_bar()+
+  labs(title = "Change in frequency of observation of merriami over the years",
+       x= "Year",
+       y = "No. of Species")
 ```
 
 ![](lab10_hw_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
@@ -233,7 +246,10 @@ deserts %>%
 ```r
 deserts %>% 
   ggplot(aes(x=weight, y=hindfoot_length))+
-  geom_jitter(size=0.5, na.rm=T)
+  geom_jitter(size=0.5, na.rm=T)+
+  labs(title = "Relationship between weight and hindfoot length",
+       x= "Weight",
+       y= "Hindfoot Length")
 ```
 
 ![](lab10_hw_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
@@ -267,10 +283,14 @@ deserts %>%
 ```r
 deserts %>% 
   filter(species =="albigula" | species == "spectabilis") %>% 
+  filter(weight!="NA" & hindfoot_length!= "NA" & sex != "NA") %>% 
   mutate(w_hf_ratio = weight/hindfoot_length) %>% 
   filter(w_hf_ratio != "NA") %>% 
   ggplot(aes(x=species, y=w_hf_ratio, fill=sex))+
-  geom_boxplot(na.rm =T)
+  geom_boxplot()+
+  labs(title = "Range of the Weight/Hindfoot Length ratio in albigula & spectabilis",
+       x= "species",
+       y= "Weight/Hindfoot Length")
 ```
 
 ![](lab10_hw_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
