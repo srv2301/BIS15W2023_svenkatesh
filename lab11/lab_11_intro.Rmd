@@ -1,0 +1,52 @@
+---
+title: "Lab 11 Intro"
+date: "`r Sys.Date()`"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library("jpeg")
+library(here)
+library(janitor)
+library(tidyverse)
+```
+
+## Seating & Set-up
+1. Please make sure that you sit next to your group members for the rest of the quarter.
+2. Please set-up your computer as normal.
+
+## Warm-up
+For this warm-up, please use the `heartrate` data. Be sure to label your plots!
+
+1. Make a plot that compares the heartrate of patients for drug a.
+
+2. Make a plot that compares heartrate (as a range) for each drug.
+
+```{r}
+heartrate <- read_csv("data/heartrate.csv")
+```
+
+```{r}
+heartrate
+```
+```{r}
+heartrate %>% 
+  select(patient, a) %>% 
+  ggplot(aes(x=patient, y=a, fill = patient))+
+  geom_col()+
+  labs(title = "Heartrates of patients for drug 'a'",
+       x = "Patients",
+       y = "Drug 'a'")
+```
+```{r}
+heartrate %>% 
+  pivot_longer(cols = a:d,
+               names_to = "Drugs",
+               values_to = "Heartrate") %>% 
+  ggplot(aes(x=Drugs, y = Heartrate, fill= Drugs))+
+  geom_boxplot()+
+  labs(title = "Distribution of heartrate for each drug type",
+       x = "Drugs",
+       y = "Heartrate")
+```
