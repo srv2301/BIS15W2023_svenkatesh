@@ -1,7 +1,7 @@
 ---
 title: "Lab 11 Homework"
 author: "Srinidhi Venkatesh"
-date: "2023-02-20"
+date: "2023-02-21"
 output:
   html_document: 
     theme: spacelab
@@ -150,10 +150,10 @@ gapminder %>%
 
 ```r
 gapminder %>% 
-  group_by(continent) %>% 
-  ggplot(aes(x=year, y=lifeExp, fill = continent))+
-  geom_col(position = "dodge")+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  group_by(continent, year) %>% 
+  summarise(mean_lifeExp = mean(lifeExp), .groups = "keep") %>% 
+  ggplot(aes(x=year, y=mean_lifeExp, group = continent, color = continent))+
+  geom_line()+
   labs(title = "Change in Life Expectancy from 1952 to 2007 by continent",
        x = "Year",
        y = "Life Expectancy")
@@ -179,40 +179,41 @@ gapminder %>%
 ```r
 gapminder1 <- gapminder %>% 
   select(year, country, pop) %>% 
-  filter(year==1952|year==2007) %>% 
-  pivot_wider(names_from = year,
-              values_from = pop) %>% 
+  filter(year>=1952 & year <= 2007) %>% 
+    pivot_wider(names_from = year,
+                values_from = pop) %>% 
   mutate(delta = `2007`-`1952`) %>% 
   arrange(-delta)
 gapminder1
 ```
 
 ```
-## # A tibble: 142 × 4
-##    country          `1952`     `2007`     delta
-##    <fct>             <int>      <int>     <int>
-##  1 China         556263527 1318683096 762419569
-##  2 India         372000000 1110396331 738396331
-##  3 United States 157553000  301139947 143586947
-##  4 Indonesia      82052000  223547000 141495000
-##  5 Brazil         56602560  190010647 133408087
-##  6 Pakistan       41346560  169270617 127924057
-##  7 Bangladesh     46886859  150448339 103561480
-##  8 Nigeria        33119096  135031164 101912068
-##  9 Mexico         30144317  108700891  78556574
-## 10 Philippines    22438691   91077287  68638596
-## # … with 132 more rows
+## # A tibble: 142 × 14
+##    country `1952` `1957` `1962` `1967` `1972` `1977` `1982` `1987` `1992` `1997`
+##    <fct>    <int>  <int>  <int>  <int>  <int>  <int>  <int>  <int>  <int>  <int>
+##  1 China   5.56e8 6.37e8 6.66e8 7.55e8 8.62e8 9.43e8 1.00e9 1.08e9 1.16e9 1.23e9
+##  2 India   3.72e8 4.09e8 4.54e8 5.06e8 5.67e8 6.34e8 7.08e8 7.88e8 8.72e8 9.59e8
+##  3 United… 1.58e8 1.72e8 1.87e8 1.99e8 2.10e8 2.20e8 2.32e8 2.43e8 2.57e8 2.73e8
+##  4 Indone… 8.21e7 9.01e7 9.90e7 1.09e8 1.21e8 1.37e8 1.53e8 1.69e8 1.85e8 1.99e8
+##  5 Brazil  5.66e7 6.56e7 7.60e7 8.80e7 1.01e8 1.14e8 1.29e8 1.43e8 1.56e8 1.69e8
+##  6 Pakist… 4.13e7 4.67e7 5.31e7 6.06e7 6.93e7 7.82e7 9.15e7 1.05e8 1.20e8 1.36e8
+##  7 Bangla… 4.69e7 5.14e7 5.68e7 6.28e7 7.08e7 8.04e7 9.31e7 1.04e8 1.14e8 1.23e8
+##  8 Nigeria 3.31e7 3.72e7 4.19e7 4.73e7 5.37e7 6.22e7 7.30e7 8.16e7 9.34e7 1.06e8
+##  9 Mexico  3.01e7 3.50e7 4.11e7 4.80e7 5.60e7 6.38e7 7.16e7 8.01e7 8.81e7 9.59e7
+## 10 Philip… 2.24e7 2.61e7 3.03e7 3.54e7 4.09e7 4.69e7 5.35e7 6.00e7 6.72e7 7.50e7
+## # … with 132 more rows, and 3 more variables: `2002` <int>, `2007` <int>,
+## #   delta <int>
 ```
 
 **8. Use your results from the question above to plot population growth for the top five countries since 1952.**
 
 ```r
-gapminder1 %>% 
-  slice_head(n=5) %>% 
-  ggplot(aes(x=reorder(country,delta), y=delta, fill=country))+
-  geom_col()+
-  coord_flip()+
-  labs(title = "Population growth for top 5 countries since 1952",
+gapminder %>% 
+  filter(country == "China" | country == "India" | country == "United States" | country == "Indonesia" | country == "Brazil") %>% 
+  select(country, year, pop) %>% 
+  ggplot(aes(x=year, y=pop, color = country))+
+  geom_line()+
+  labs(title = "Population growth for the top 5 countries since 1952",
        x = "Population Growth",
        y = "Countries")
 ```
@@ -223,19 +224,35 @@ gapminder1 %>%
 ```r
 gapminder2 <- gapminder %>% 
   select(year, country, gdpPercap) %>% 
-  filter(year==1952|year==2007) %>% 
+  filter(year>= 1952|year <=2007) %>% 
+  filter(country == "China" | country == "India" | country == "United States" | country == "Indonesia" | country == "Brazil") %>% 
   pivot_wider(names_from = year,
               values_from = gdpPercap) %>% 
   mutate(delta = `2007`-`1952`) %>% 
   arrange(-delta)
+gapminder2
 ```
 
+```
+## # A tibble: 5 × 14
+##   country  `1952` `1957` `1962` `1967` `1972` `1977` `1982` `1987` `1992` `1997`
+##   <fct>     <dbl>  <dbl>  <dbl>  <dbl>  <dbl>  <dbl>  <dbl>  <dbl>  <dbl>  <dbl>
+## 1 United … 13990. 14847. 16173. 19530. 21806. 24073. 25010. 29884. 32004. 35767.
+## 2 Brazil    2109.  2487.  3337.  3430.  4986.  6660.  7031.  7807.  6950.  7958.
+## 3 China      400.   576.   488.   613.   677.   741.   962.  1379.  1656.  2289.
+## 4 Indones…   750.   859.   849.   762.  1111.  1383.  1517.  1748.  2383.  3119.
+## 5 India      547.   590.   658.   701.   724.   813.   856.   977.  1164.  1459.
+## # … with 3 more variables: `2002` <dbl>, `2007` <dbl>, delta <dbl>
+```
+
+
+
 ```r
-gapminder2 %>% 
-  slice_head(n=5) %>% 
-  ggplot(aes(x=reorder(country,delta), y=delta, fill=country))+
-  geom_col()+
-  coord_flip()+
+gapminder%>% 
+  select(country, year, gdpPercap) %>% 
+  filter(country == "China" | country == "India" | country == "United States" | country == "Indonesia" | country == "Brazil") %>% 
+  ggplot(aes(x=year, y=gdpPercap, color=country))+
+  geom_line()+
   labs(title = "GDP per capita growth for top 5 countries since 1952",
        x = "GDP per capita growth",
        y = "Countries")

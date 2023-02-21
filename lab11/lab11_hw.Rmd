@@ -85,10 +85,10 @@ gapminder %>%
 **5. How has life expectancy changed between 1952-2007 for each continent?**
 ```{r}
 gapminder %>% 
-  group_by(continent) %>% 
-  ggplot(aes(x=year, y=lifeExp, fill = continent))+
-  geom_col(position = "dodge")+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  group_by(continent, year) %>% 
+  summarise(mean_lifeExp = mean(lifeExp), .groups = "keep") %>% 
+  ggplot(aes(x=year, y=mean_lifeExp, group = continent, color = continent))+
+  geom_line()+
   labs(title = "Change in Life Expectancy from 1952 to 2007 by continent",
        x = "Year",
        y = "Life Expectancy")
@@ -108,9 +108,9 @@ gapminder %>%
 ```{r}
 gapminder1 <- gapminder %>% 
   select(year, country, pop) %>% 
-  filter(year==1952|year==2007) %>% 
-  pivot_wider(names_from = year,
-              values_from = pop) %>% 
+  filter(year>=1952 & year <= 2007) %>% 
+    pivot_wider(names_from = year,
+                values_from = pop) %>% 
   mutate(delta = `2007`-`1952`) %>% 
   arrange(-delta)
 gapminder1
@@ -118,12 +118,12 @@ gapminder1
 
 **8. Use your results from the question above to plot population growth for the top five countries since 1952.**
 ```{r}
-gapminder1 %>% 
-  slice_head(n=5) %>% 
-  ggplot(aes(x=reorder(country,delta), y=delta, fill=country))+
-  geom_col()+
-  coord_flip()+
-  labs(title = "Population growth for top 5 countries since 1952",
+gapminder %>% 
+  filter(country == "China" | country == "India" | country == "United States" | country == "Indonesia" | country == "Brazil") %>% 
+  select(country, year, pop) %>% 
+  ggplot(aes(x=year, y=pop, color = country))+
+  geom_line()+
+  labs(title = "Population growth for the top 5 countries since 1952",
        x = "Population Growth",
        y = "Countries")
 ```
@@ -131,18 +131,22 @@ gapminder1 %>%
 ```{r}
 gapminder2 <- gapminder %>% 
   select(year, country, gdpPercap) %>% 
-  filter(year==1952|year==2007) %>% 
+  filter(year>= 1952|year <=2007) %>% 
+  filter(country == "China" | country == "India" | country == "United States" | country == "Indonesia" | country == "Brazil") %>% 
   pivot_wider(names_from = year,
               values_from = gdpPercap) %>% 
   mutate(delta = `2007`-`1952`) %>% 
   arrange(-delta)
+gapminder2
 ```
+
+
 ```{r}
-gapminder2 %>% 
-  slice_head(n=5) %>% 
-  ggplot(aes(x=reorder(country,delta), y=delta, fill=country))+
-  geom_col()+
-  coord_flip()+
+gapminder%>% 
+  select(country, year, gdpPercap) %>% 
+  filter(country == "China" | country == "India" | country == "United States" | country == "Indonesia" | country == "Brazil") %>% 
+  ggplot(aes(x=year, y=gdpPercap, color=country))+
+  geom_line()+
   labs(title = "GDP per capita growth for top 5 countries since 1952",
        x = "GDP per capita growth",
        y = "Countries")
