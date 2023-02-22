@@ -262,7 +262,16 @@ gapminder%>%
 
 **10. Make one plot of your choice that uses faceting!**
 
+```r
+gapminder %>% 
+  select(lifeExp, continent) %>% 
+  ggplot(aes(x=lifeExp))+
+  geom_density()+
+  facet_wrap(~continent, ncol=3)+
+  labs(title = "Distribution of Life Expectancy by continent")
+```
 
+![](lab11_hw_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
 
 ## Push your final code to GitHub!
-Please be sure that you check the `keep md` file in the knit preferences. 
+Please be sure that you check the `keep md` file in the knit preferences.
