@@ -44,7 +44,6 @@ glimpse(surgery)
 summary(surgery)
 ```
 
-
 ```{r}
 surgery %>% 
   summarise_all(~(sum(is.na(.))))
@@ -54,12 +53,13 @@ surgery %>%
 ```{r}
 surgery %>% 
   count(race) %>% 
-  ggplot(aes(x=reorder(race,n), y=n)) +
+  filter(race != "NA") %>% 
+  ggplot(aes(x=race, y=n, fill =race))+
   geom_col() +
   theme_minimal()+
   theme(plot.title = element_text(size = 12, face = "bold"),
-        axis.title = element_text(size=8),
-        axis.text.x = element_text(size=8, angle = 60, hjust=1))+
+        axis.title = element_text(size=10),
+        axis.text.x = element_text(size=8, hjust=1))+
   labs(title = "No. of participants of each race in the study",
        x = "race",
        y= "Number fo Participants")
@@ -72,6 +72,7 @@ surgery %>%
   filter(gender != "NA") %>% 
   summarise(mean_age = mean(age, na.rm =T))
 ```
+
 4. (3 points) Make a plot that shows the range of age associated with gender.
 ```{r}
 surgery %>% 
@@ -81,7 +82,7 @@ surgery %>%
   geom_boxplot()+
   theme_minimal()+
   theme(plot.title = element_text(size = 12, face = "bold"),
-        axis.title = element_text(size=8),
+        axis.title = element_text(size=10),
         axis.text.x = element_text(size=8, hjust=1))+
   labs(title = "Distribution of age for Males and Females in the study",
        x= "Gender",
@@ -97,10 +98,10 @@ surgery %>%
   geom_col()+
   theme_minimal()+
   theme(plot.title = element_text(size = 12, face = "bold"),
-        axis.title = element_text(size=8),
+        axis.title = element_text(size=10),
         axis.text.x = element_text(size=8, hjust=1))+
-  labs(title = "Comparison of healthiness by no. of patients of each asa status",
-       x = "asa status",
+  labs(title = "Comparison of healthiness by no. of patients of each ASA status",
+       x = "ASA status",
        y = "No. of patients")
   
 ```
@@ -114,9 +115,9 @@ surgery %>%
   facet_wrap(~asa_status, ncol =2)+
   theme_minimal()+
   theme(plot.title = element_text(size = 12, face = "bold"),
-        axis.title = element_text(size=8),
+        axis.title = element_text(size=10),
         axis.text.x = element_text(size=8, hjust=1))+
-  labs(title = "Distribution of BMI for each asa status",
+  labs(title = "Distribution of BMI for each ASA status",
        x= "BMI",
        y = "Density (probability distibution")
 ```
@@ -126,55 +127,102 @@ The variable `ccsmort30rate` is a measure of the overall 30-day mortality rate a
 7. (4 points) What are the 5 procedures associated with highest risk of 30-day mortality AND how do they compare with the 5 procedures with highest risk of complication? (hint: no need for a plot here)
 ```{r}
 surgery %>% 
-  select(ahrq_ccs, ccsmort30rate)%>% 
-  ggplot(aes(x=reorder(ahrq_ccs,ccsmort30rate), y=ccsmort30rate))+
-  geom_col()+
-  coord_flip()+
-  theme_minimal()+
-  theme(plot.title = element_text(size = 12, face = "bold"),
-        axis.title = element_text(size=8),
-        axis.text.x = element_text(size=8, angle =80, hjust=1))
+  select(ccsmort30rate, ahrq_ccs) %>% 
+  group_by(ahrq_ccs) %>% 
+  summarise(mean_30_day_mortality = mean(ccsmort30rate)) %>% 
+  arrange(-mean_30_day_mortality) %>% 
+  slice_head(n=5)
 ```
+
 
 ```{r}
 surgery %>% 
-  select(ahrq_ccs, ccscomplicationrate)%>% 
-  ggplot(aes(x=ahrq_ccs, y=ccscomplicationrate))+
-  geom_col()+
-  coord_flip()
-  theme_minimal()+
-  theme(plot.title = element_text(size = 12, face = "bold"),
-        axis.title = element_text(size=8),
-        axis.text.x = element_text(size=8, hjust=1))
+  select(ccscomplicationrate, ahrq_ccs) %>% 
+  group_by(ahrq_ccs) %>% 
+  summarise(mean_30_day_ccr = mean(ccscomplicationrate)) %>% 
+  arrange(-mean_30_day_ccr) %>% 
+  slice_head(n=5)
 ```
 
 8. (3 points) Make a plot that compares the `ccsmort30rate` for all listed `ahrq_ccs` procedures.
 ```{r}
 surgery %>% 
-  ggplot(aes(x=ahrq_ccs, y=ccsmort30rate, fill = ahrq_ccs))+
+  ggplot(aes(x=ahrq_ccs, y=ccsmort30rate))+
   coord_flip()+
   geom_col()+
   theme_minimal()+
-  theme(legend.position = "bottom",
-        plot.title = element_text(size = 10, face = "bold"),
-        axis.title = element_text(size=8),
+  theme(plot.title = element_text(size = 10, face = "bold"),
+        axis.title = element_text(size=10),
         axis.text.x = element_text(size=8, hjust=1))+
   labs(title = "Comparison of the mortality rate by operation",
        x = "Operation types",
        y = "Mortality Rate")
 ```
 
+
 9. (4 points) When is the best month to have surgery? Make a chart that shows the 30-day mortality and complications for the patients by month. `mort30` is the variable that shows whether or not a patient survived 30 days post-operation.
+```{r}
+surgery %>% 
+  mutate(mort30 = as.factor(mort30)) %>% 
+  select(mort30, month, complication) %>% 
+  filter(mort30 == "Yes") %>% 
+  group_by(month) %>% 
+  count(mort30) %>% 
+  arrange(-n)
+```
+```{r}
+surgery %>% 
+  mutate(complication = as.factor(complication)) %>% 
+  select(mort30, month, complication) %>% 
+  filter(complication == "Yes") %>% 
+  group_by(month) %>% 
+  count(complication) %>% 
+  arrange(-n)
+```
+
+December is the best month to have surgery because it has the best survival rate 30 days post-operation and the least no. of complications.
+
+10. (4 points) Make a plot that visualizes the chart from question #9. Make sure that the months are on the x-axis. Do a search online and figure out how to order the months Jan-Dec.
 ```{r}
 surgery %>% 
   select(mort30, month) %>% 
   filter(mort30 == "Yes") %>% 
-  ggplot(aes(x=month, y=mort30, fill = month))+
-  geom_col()
+  group_by(month) %>% 
+  count(mort30) %>% 
+  arrange(-n) %>% 
+  ggplot(aes(x=month, y=n, fill = month))+
+  geom_col()+ 
+  scale_x_discrete(limits = month.abb)+
+  theme_minimal()+
+  theme(plot.title = element_text(size = 10, face = "bold"),
+        axis.title = element_text(size=10),
+        axis.text.x = element_text(size=8, hjust=1))+
+  labs(title = "No. of patients suviving 30-days post-operation by month",
+       x = "Month",
+       y = "No. of patients")
 ```
 
-10. (4 points) Make a plot that visualizes the chart from question #9. Make sure that the months are on the x-axis. Do a search online and figure out how to order the months Jan-Dec.
+```{r}
+surgery %>% 
+  mutate(complication = as.factor(complication)) %>% 
+  select(mort30, month, complication) %>% 
+  filter(complication == "Yes") %>% 
+  group_by(month) %>% 
+  count(complication) %>% 
+  arrange(-n) %>% 
+  ggplot(aes(x=month, y=n, fill = month))+
+  geom_col()+ 
+  scale_x_discrete(limits = month.abb)+
+  theme_minimal()+
+  theme(plot.title = element_text(size = 10, face = "bold"),
+        axis.title = element_text(size=10),
+        axis.text.x = element_text(size=8, hjust=1))+
+  labs(title = "No. of patients with complications",
+       x = "Month",
+       y = "No. of patients")
+```
 
 Please provide the names of the students you have worked with with during the exam:
+Isabella Szalay
 
 Please be 100% sure your exam is saved, knitted, and pushed to your github repository. No need to submit a link on canvas, we will find your exam in your repository.

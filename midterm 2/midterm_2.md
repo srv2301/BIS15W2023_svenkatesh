@@ -136,7 +136,6 @@ summary(surgery)
 ```
 
 
-
 ```r
 surgery %>% 
   summarise_all(~(sum(is.na(.))))
@@ -161,12 +160,13 @@ surgery %>%
 ```r
 surgery %>% 
   count(race) %>% 
-  ggplot(aes(x=reorder(race,n), y=n)) +
+  filter(race != "NA") %>% 
+  ggplot(aes(x=race, y=n, fill =race))+
   geom_col() +
   theme_minimal()+
   theme(plot.title = element_text(size = 12, face = "bold"),
-        axis.title = element_text(size=8),
-        axis.text.x = element_text(size=8, angle = 60, hjust=1))+
+        axis.title = element_text(size=10),
+        axis.text.x = element_text(size=8, hjust=1))+
   labs(title = "No. of participants of each race in the study",
        x = "race",
        y= "Number fo Participants")
@@ -190,6 +190,7 @@ surgery %>%
 ## 1 F          56.7
 ## 2 M          58.8
 ```
+
 4. (3 points) Make a plot that shows the range of age associated with gender.
 
 ```r
@@ -200,7 +201,7 @@ surgery %>%
   geom_boxplot()+
   theme_minimal()+
   theme(plot.title = element_text(size = 12, face = "bold"),
-        axis.title = element_text(size=8),
+        axis.title = element_text(size=10),
         axis.text.x = element_text(size=8, hjust=1))+
   labs(title = "Distribution of age for Males and Females in the study",
        x= "Gender",
@@ -223,10 +224,10 @@ surgery %>%
   geom_col()+
   theme_minimal()+
   theme(plot.title = element_text(size = 12, face = "bold"),
-        axis.title = element_text(size=8),
+        axis.title = element_text(size=10),
         axis.text.x = element_text(size=8, hjust=1))+
-  labs(title = "Comparison of healthiness by no. of patients of each asa status",
-       x = "asa status",
+  labs(title = "Comparison of healthiness by no. of patients of each ASA status",
+       x = "ASA status",
        y = "No. of patients")
 ```
 
@@ -242,9 +243,9 @@ surgery %>%
   facet_wrap(~asa_status, ncol =2)+
   theme_minimal()+
   theme(plot.title = element_text(size = 12, face = "bold"),
-        axis.title = element_text(size=8),
+        axis.title = element_text(size=10),
         axis.text.x = element_text(size=8, hjust=1))+
-  labs(title = "Distribution of BMI for each asa status",
+  labs(title = "Distribution of BMI for each ASA status",
        x= "BMI",
        y = "Density (probability distibution")
 ```
@@ -261,447 +262,56 @@ The variable `ccsmort30rate` is a measure of the overall 30-day mortality rate a
 
 ```r
 surgery %>% 
-  select(ahrq_ccs, ccsmort30rate)%>% 
-  ggplot(aes(x=reorder(ahrq_ccs,ccsmort30rate), y=ccsmort30rate))+
-  geom_col()+
-  coord_flip()+
-  theme_minimal()+
-  theme(plot.title = element_text(size = 12, face = "bold"),
-        axis.title = element_text(size=8),
-        axis.text.x = element_text(size=8, angle =80, hjust=1))
+  select(ccsmort30rate, ahrq_ccs) %>% 
+  group_by(ahrq_ccs) %>% 
+  summarise(mean_30_day_mortality = mean(ccsmort30rate)) %>% 
+  arrange(-mean_30_day_mortality) %>% 
+  slice_head(n=5)
 ```
 
-![](midterm_2_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
+```
+## # A tibble: 5 × 2
+##   ahrq_ccs                                             mean_30_day_mortality
+##   <chr>                                                                <dbl>
+## 1 Colorectal resection                                               0.0167 
+## 2 Small bowel resection                                              0.0129 
+## 3 Gastrectomy; partial and total                                     0.0127 
+## 4 Endoscopy and endoscopic biopsy of the urinary tract               0.00811
+## 5 Spinal fusion                                                      0.00742
+```
+
 
 
 ```r
 surgery %>% 
-  select(ahrq_ccs, ccscomplicationrate)%>% 
-  ggplot(aes(x=ahrq_ccs, y=ccscomplicationrate))+
-  geom_col()+
-  coord_flip()
-```
-
-![](midterm_2_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
-
-```r
-  theme_minimal()+
-  theme(plot.title = element_text(size = 12, face = "bold"),
-        axis.title = element_text(size=8),
-        axis.text.x = element_text(size=8, hjust=1))
+  select(ccscomplicationrate, ahrq_ccs) %>% 
+  group_by(ahrq_ccs) %>% 
+  summarise(mean_30_day_ccr = mean(ccscomplicationrate)) %>% 
+  arrange(-mean_30_day_ccr) %>% 
+  slice_head(n=5)
 ```
 
 ```
-## List of 94
-##  $ line                      :List of 6
-##   ..$ colour       : chr "black"
-##   ..$ linewidth    : num 0.5
-##   ..$ linetype     : num 1
-##   ..$ lineend      : chr "butt"
-##   ..$ arrow        : logi FALSE
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_line" "element"
-##  $ rect                      :List of 5
-##   ..$ fill         : chr "white"
-##   ..$ colour       : chr "black"
-##   ..$ linewidth    : num 0.5
-##   ..$ linetype     : num 1
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_rect" "element"
-##  $ text                      :List of 11
-##   ..$ family       : chr ""
-##   ..$ face         : chr "plain"
-##   ..$ colour       : chr "black"
-##   ..$ size         : num 11
-##   ..$ hjust        : num 0.5
-##   ..$ vjust        : num 0.5
-##   ..$ angle        : num 0
-##   ..$ lineheight   : num 0.9
-##   ..$ margin       : 'margin' num [1:4] 0points 0points 0points 0points
-##   .. ..- attr(*, "unit")= int 8
-##   ..$ debug        : logi FALSE
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ title                     : NULL
-##  $ aspect.ratio              : NULL
-##  $ axis.title                :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : num 8
-##   ..$ hjust        : NULL
-##   ..$ vjust        : NULL
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : NULL
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi FALSE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ axis.title.x              :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : NULL
-##   ..$ vjust        : num 1
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : 'margin' num [1:4] 2.75points 0points 0points 0points
-##   .. ..- attr(*, "unit")= int 8
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ axis.title.x.top          :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : NULL
-##   ..$ vjust        : num 0
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : 'margin' num [1:4] 0points 0points 2.75points 0points
-##   .. ..- attr(*, "unit")= int 8
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ axis.title.x.bottom       : NULL
-##  $ axis.title.y              :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : NULL
-##   ..$ vjust        : num 1
-##   ..$ angle        : num 90
-##   ..$ lineheight   : NULL
-##   ..$ margin       : 'margin' num [1:4] 0points 2.75points 0points 0points
-##   .. ..- attr(*, "unit")= int 8
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ axis.title.y.left         : NULL
-##  $ axis.title.y.right        :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : NULL
-##   ..$ vjust        : num 0
-##   ..$ angle        : num -90
-##   ..$ lineheight   : NULL
-##   ..$ margin       : 'margin' num [1:4] 0points 0points 0points 2.75points
-##   .. ..- attr(*, "unit")= int 8
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ axis.text                 :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : chr "grey30"
-##   ..$ size         : 'rel' num 0.8
-##   ..$ hjust        : NULL
-##   ..$ vjust        : NULL
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : NULL
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ axis.text.x               :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : num 8
-##   ..$ hjust        : num 1
-##   ..$ vjust        : num 1
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : 'margin' num [1:4] 2.2points 0points 0points 0points
-##   .. ..- attr(*, "unit")= int 8
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi FALSE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ axis.text.x.top           :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : NULL
-##   ..$ vjust        : num 0
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : 'margin' num [1:4] 0points 0points 2.2points 0points
-##   .. ..- attr(*, "unit")= int 8
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ axis.text.x.bottom        : NULL
-##  $ axis.text.y               :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : num 1
-##   ..$ vjust        : NULL
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : 'margin' num [1:4] 0points 2.2points 0points 0points
-##   .. ..- attr(*, "unit")= int 8
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ axis.text.y.left          : NULL
-##  $ axis.text.y.right         :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : num 0
-##   ..$ vjust        : NULL
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : 'margin' num [1:4] 0points 0points 0points 2.2points
-##   .. ..- attr(*, "unit")= int 8
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ axis.ticks                : list()
-##   ..- attr(*, "class")= chr [1:2] "element_blank" "element"
-##  $ axis.ticks.x              : NULL
-##  $ axis.ticks.x.top          : NULL
-##  $ axis.ticks.x.bottom       : NULL
-##  $ axis.ticks.y              : NULL
-##  $ axis.ticks.y.left         : NULL
-##  $ axis.ticks.y.right        : NULL
-##  $ axis.ticks.length         : 'simpleUnit' num 2.75points
-##   ..- attr(*, "unit")= int 8
-##  $ axis.ticks.length.x       : NULL
-##  $ axis.ticks.length.x.top   : NULL
-##  $ axis.ticks.length.x.bottom: NULL
-##  $ axis.ticks.length.y       : NULL
-##  $ axis.ticks.length.y.left  : NULL
-##  $ axis.ticks.length.y.right : NULL
-##  $ axis.line                 : list()
-##   ..- attr(*, "class")= chr [1:2] "element_blank" "element"
-##  $ axis.line.x               : NULL
-##  $ axis.line.x.top           : NULL
-##  $ axis.line.x.bottom        : NULL
-##  $ axis.line.y               : NULL
-##  $ axis.line.y.left          : NULL
-##  $ axis.line.y.right         : NULL
-##  $ legend.background         : list()
-##   ..- attr(*, "class")= chr [1:2] "element_blank" "element"
-##  $ legend.margin             : 'margin' num [1:4] 5.5points 5.5points 5.5points 5.5points
-##   ..- attr(*, "unit")= int 8
-##  $ legend.spacing            : 'simpleUnit' num 11points
-##   ..- attr(*, "unit")= int 8
-##  $ legend.spacing.x          : NULL
-##  $ legend.spacing.y          : NULL
-##  $ legend.key                : list()
-##   ..- attr(*, "class")= chr [1:2] "element_blank" "element"
-##  $ legend.key.size           : 'simpleUnit' num 1.2lines
-##   ..- attr(*, "unit")= int 3
-##  $ legend.key.height         : NULL
-##  $ legend.key.width          : NULL
-##  $ legend.text               :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : 'rel' num 0.8
-##   ..$ hjust        : NULL
-##   ..$ vjust        : NULL
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : NULL
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ legend.text.align         : NULL
-##  $ legend.title              :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : num 0
-##   ..$ vjust        : NULL
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : NULL
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ legend.title.align        : NULL
-##  $ legend.position           : chr "right"
-##  $ legend.direction          : NULL
-##  $ legend.justification      : chr "center"
-##  $ legend.box                : NULL
-##  $ legend.box.just           : NULL
-##  $ legend.box.margin         : 'margin' num [1:4] 0cm 0cm 0cm 0cm
-##   ..- attr(*, "unit")= int 1
-##  $ legend.box.background     : list()
-##   ..- attr(*, "class")= chr [1:2] "element_blank" "element"
-##  $ legend.box.spacing        : 'simpleUnit' num 11points
-##   ..- attr(*, "unit")= int 8
-##  $ panel.background          : list()
-##   ..- attr(*, "class")= chr [1:2] "element_blank" "element"
-##  $ panel.border              : list()
-##   ..- attr(*, "class")= chr [1:2] "element_blank" "element"
-##  $ panel.spacing             : 'simpleUnit' num 5.5points
-##   ..- attr(*, "unit")= int 8
-##  $ panel.spacing.x           : NULL
-##  $ panel.spacing.y           : NULL
-##  $ panel.grid                :List of 6
-##   ..$ colour       : chr "grey92"
-##   ..$ linewidth    : NULL
-##   ..$ linetype     : NULL
-##   ..$ lineend      : NULL
-##   ..$ arrow        : logi FALSE
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_line" "element"
-##  $ panel.grid.major          : NULL
-##  $ panel.grid.minor          :List of 6
-##   ..$ colour       : NULL
-##   ..$ linewidth    : 'rel' num 0.5
-##   ..$ linetype     : NULL
-##   ..$ lineend      : NULL
-##   ..$ arrow        : logi FALSE
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_line" "element"
-##  $ panel.grid.major.x        : NULL
-##  $ panel.grid.major.y        : NULL
-##  $ panel.grid.minor.x        : NULL
-##  $ panel.grid.minor.y        : NULL
-##  $ panel.ontop               : logi FALSE
-##  $ plot.background           : list()
-##   ..- attr(*, "class")= chr [1:2] "element_blank" "element"
-##  $ plot.title                :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : chr "bold"
-##   ..$ colour       : NULL
-##   ..$ size         : num 12
-##   ..$ hjust        : num 0
-##   ..$ vjust        : num 1
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : 'margin' num [1:4] 0points 0points 5.5points 0points
-##   .. ..- attr(*, "unit")= int 8
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi FALSE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ plot.title.position       : chr "panel"
-##  $ plot.subtitle             :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : num 0
-##   ..$ vjust        : num 1
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : 'margin' num [1:4] 0points 0points 5.5points 0points
-##   .. ..- attr(*, "unit")= int 8
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ plot.caption              :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : 'rel' num 0.8
-##   ..$ hjust        : num 1
-##   ..$ vjust        : num 1
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : 'margin' num [1:4] 5.5points 0points 0points 0points
-##   .. ..- attr(*, "unit")= int 8
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ plot.caption.position     : chr "panel"
-##  $ plot.tag                  :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : 'rel' num 1.2
-##   ..$ hjust        : num 0.5
-##   ..$ vjust        : num 0.5
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : NULL
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ plot.tag.position         : chr "topleft"
-##  $ plot.margin               : 'margin' num [1:4] 5.5points 5.5points 5.5points 5.5points
-##   ..- attr(*, "unit")= int 8
-##  $ strip.background          : list()
-##   ..- attr(*, "class")= chr [1:2] "element_blank" "element"
-##  $ strip.background.x        : NULL
-##  $ strip.background.y        : NULL
-##  $ strip.clip                : chr "inherit"
-##  $ strip.placement           : chr "inside"
-##  $ strip.text                :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : chr "grey10"
-##   ..$ size         : 'rel' num 0.8
-##   ..$ hjust        : NULL
-##   ..$ vjust        : NULL
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : 'margin' num [1:4] 4.4points 4.4points 4.4points 4.4points
-##   .. ..- attr(*, "unit")= int 8
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ strip.text.x              : NULL
-##  $ strip.text.y              :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : NULL
-##   ..$ vjust        : NULL
-##   ..$ angle        : num -90
-##   ..$ lineheight   : NULL
-##   ..$ margin       : NULL
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ strip.switch.pad.grid     : 'simpleUnit' num 2.75points
-##   ..- attr(*, "unit")= int 8
-##  $ strip.switch.pad.wrap     : 'simpleUnit' num 2.75points
-##   ..- attr(*, "unit")= int 8
-##  $ strip.text.y.left         :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : NULL
-##   ..$ vjust        : NULL
-##   ..$ angle        : num 90
-##   ..$ lineheight   : NULL
-##   ..$ margin       : NULL
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  - attr(*, "class")= chr [1:2] "theme" "gg"
-##  - attr(*, "complete")= logi TRUE
-##  - attr(*, "validate")= logi TRUE
+## # A tibble: 5 × 2
+##   ahrq_ccs                         mean_30_day_ccr
+##   <chr>                                      <dbl>
+## 1 Small bowel resection                      0.466
+## 2 Colorectal resection                       0.312
+## 3 Nephrectomy; partial or complete           0.197
+## 4 Gastrectomy; partial and total             0.190
+## 5 Spinal fusion                              0.183
 ```
 
 8. (3 points) Make a plot that compares the `ccsmort30rate` for all listed `ahrq_ccs` procedures.
 
 ```r
 surgery %>% 
-  ggplot(aes(x=ahrq_ccs, y=ccsmort30rate, fill = ahrq_ccs))+
+  ggplot(aes(x=ahrq_ccs, y=ccsmort30rate))+
   coord_flip()+
   geom_col()+
   theme_minimal()+
-  theme(legend.position = "bottom",
-        plot.title = element_text(size = 10, face = "bold"),
-        axis.title = element_text(size=8),
+  theme(plot.title = element_text(size = 10, face = "bold"),
+        axis.title = element_text(size=10),
         axis.text.x = element_text(size=8, hjust=1))+
   labs(title = "Comparison of the mortality rate by operation",
        x = "Operation types",
@@ -710,20 +320,116 @@ surgery %>%
 
 ![](midterm_2_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
 
+
 9. (4 points) When is the best month to have surgery? Make a chart that shows the 30-day mortality and complications for the patients by month. `mort30` is the variable that shows whether or not a patient survived 30 days post-operation.
+
+```r
+surgery %>% 
+  mutate(mort30 = as.factor(mort30)) %>% 
+  select(mort30, month, complication) %>% 
+  filter(mort30 == "Yes") %>% 
+  group_by(month) %>% 
+  count(mort30) %>% 
+  arrange(-n)
+```
+
+```
+## # A tibble: 12 × 3
+## # Groups:   month [12]
+##    month mort30     n
+##    <chr> <fct>  <int>
+##  1 Jan   Yes       19
+##  2 Feb   Yes       17
+##  3 Sep   Yes       16
+##  4 Jun   Yes       14
+##  5 Apr   Yes       12
+##  6 Jul   Yes       12
+##  7 Mar   Yes       12
+##  8 May   Yes       10
+##  9 Aug   Yes        9
+## 10 Oct   Yes        8
+## 11 Nov   Yes        5
+## 12 Dec   Yes        4
+```
+
+```r
+surgery %>% 
+  mutate(complication = as.factor(complication)) %>% 
+  select(mort30, month, complication) %>% 
+  filter(complication == "Yes") %>% 
+  group_by(month) %>% 
+  count(complication) %>% 
+  arrange(-n)
+```
+
+```
+## # A tibble: 12 × 3
+## # Groups:   month [12]
+##    month complication     n
+##    <chr> <fct>        <int>
+##  1 Aug   Yes            462
+##  2 Sep   Yes            424
+##  3 Jun   Yes            410
+##  4 Jan   Yes            407
+##  5 Oct   Yes            377
+##  6 Feb   Yes            343
+##  7 May   Yes            333
+##  8 Nov   Yes            325
+##  9 Mar   Yes            324
+## 10 Apr   Yes            321
+## 11 Jul   Yes            301
+## 12 Dec   Yes            237
+```
+
+December is the best month to have surgery because it has the best survival rate 30 days post-operation and the least no. of complications.
+
+10. (4 points) Make a plot that visualizes the chart from question #9. Make sure that the months are on the x-axis. Do a search online and figure out how to order the months Jan-Dec.
 
 ```r
 surgery %>% 
   select(mort30, month) %>% 
   filter(mort30 == "Yes") %>% 
-  ggplot(aes(x=month, y=mort30, fill = month))+
-  geom_col()
+  group_by(month) %>% 
+  count(mort30) %>% 
+  arrange(-n) %>% 
+  ggplot(aes(x=month, y=n, fill = month))+
+  geom_col()+ 
+  scale_x_discrete(limits = month.abb)+
+  theme_minimal()+
+  theme(plot.title = element_text(size = 10, face = "bold"),
+        axis.title = element_text(size=10),
+        axis.text.x = element_text(size=8, hjust=1))+
+  labs(title = "No. of patients suviving 30-days post-operation by month",
+       x = "Month",
+       y = "No. of patients")
 ```
 
-![](midterm_2_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
+![](midterm_2_files/figure-html/unnamed-chunk-16-1.png)<!-- -->
 
-10. (4 points) Make a plot that visualizes the chart from question #9. Make sure that the months are on the x-axis. Do a search online and figure out how to order the months Jan-Dec.
+
+```r
+surgery %>% 
+  mutate(complication = as.factor(complication)) %>% 
+  select(mort30, month, complication) %>% 
+  filter(complication == "Yes") %>% 
+  group_by(month) %>% 
+  count(complication) %>% 
+  arrange(-n) %>% 
+  ggplot(aes(x=month, y=n, fill = month))+
+  geom_col()+ 
+  scale_x_discrete(limits = month.abb)+
+  theme_minimal()+
+  theme(plot.title = element_text(size = 10, face = "bold"),
+        axis.title = element_text(size=10),
+        axis.text.x = element_text(size=8, hjust=1))+
+  labs(title = "No. of patients with complications",
+       x = "Month",
+       y = "No. of patients")
+```
+
+![](midterm_2_files/figure-html/unnamed-chunk-17-1.png)<!-- -->
 
 Please provide the names of the students you have worked with with during the exam:
+Isabella Szalay
 
 Please be 100% sure your exam is saved, knitted, and pushed to your github repository. No need to submit a link on canvas, we will find your exam in your repository.
