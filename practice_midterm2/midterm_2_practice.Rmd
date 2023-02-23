@@ -264,6 +264,7 @@ gapminder_join <- inner_join(life_expectancy_100, population_100, by= c("country
 gapminder_join <- inner_join(gapminder_join, income_100, by= c("country", "year"))
 gapminder_join
 ```
+
 10. (4 points) Use the joined data to perform an analysis of your choice. The analysis should include a comparison between two or more of the variables `life_expectancy`, `population`, or `income.`  
 
 Comparison of the range of income by country

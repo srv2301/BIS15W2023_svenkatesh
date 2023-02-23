@@ -31,6 +31,7 @@ penguins %>%
             distinct_island = n_distinct(island),
             distinct_sex = n_distinct(sex))
 ```
+
 `across()` - n_distinct but cleaner
 ```{r}
 penguins %>%
@@ -114,7 +115,7 @@ relig_income %>%
                values_to = "n_total")
 ```
 
-If only some column names are values if a variable - then specify a range of columns that you want to pivot or columns that you want to stay fixed or identify columns by a prefix, remove the prefix and all NA's
+If only some column names are values of a variable - then specify a range of columns that you want to pivot or columns that you want to stay fixed or identify columns by a prefix, remove the prefix and all NA's
 ```{r}
 billboard2 <- 
   billboard %>% 
@@ -146,7 +147,7 @@ billboard %>%
    values_drop_na = TRUE)
 ```
 
-separate function helps pull names apart in a column- differentiate with signs
+Separate function helps pull names apart in a column- differentiate with signs
 ```{r}
 heartrate2 %>% 
   separate(patient, into= c("patient", "sex"), sep = "_")
@@ -242,6 +243,13 @@ Themes:
 - a + theme_classic()
 - a + theme_minimal()
 - a + theme_pander()
+
+Theme to use for all:
+```{r}
+theme_minimal()+
+  theme(axis.title = element_text(size=8),
+        axis.text.x = element_text(size=3, angle = 80, hjust=1))
+```
 
 aes() function to identify the x and y variables in the plot - geom_boxplot() is used for range of our variables on the y-axis
 ```{r}
@@ -620,5 +628,19 @@ gapminder %>%
               values_from = pop) %>% 
   mutate(delta= `2007`-`1952`) %>% 
   arrange(-delta)
+```
+
+Faceting
+```{r}
+gapminder
+```
+
+```{r}
+gapminder %>% 
+  filter(continent == "Asia" | continent == "Europe") %>%
+  ggplot(aes(x=country, y=lifeExp, fill=continent))+ 
+  geom_boxplot(alpha=0.4) + 
+  facet_wrap(~continent, ncol=3)+
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
 ```
 
