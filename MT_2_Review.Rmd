@@ -539,7 +539,7 @@ homerange %>%
   ylim(1, 6)
 ```
 
-Color the,e for scatterplot
+Color for the scatterplot
 ```{r}
 homerange %>% 
   ggplot(aes(x=trophic.guild, fill = class))+
@@ -581,5 +581,44 @@ ecosphere %>%
   ggplot(aes(x=log10_mass))+
   geom_density()+
   facet_grid(diet~habitat, scales = "free_y")
+```
+
+
+Practice
+
+```{r}
+gapminder <- gapminder %>% 
+  mutate(year=as_factor(year))
+```
+
+```{r}
+gapminder %>% 
+  select(lifeExp, year) %>% 
+  ggplot(aes(x=year, y=lifeExp, fill = year))+ 
+  geom_col()
+```
+
+```{r}
+gapminder %>% 
+  filter(year == 1952 | year == 2007) %>% 
+  select(lifeExp, year) %>% 
+  ggplot(aes(x=year, y=lifeExp, fill= year))+
+  geom_boxplot()
+```
+```{r}
+gapminder %>% 
+  group_by(continent, year) %>% 
+  summarise(mean_lifeExp = mean(lifeExp), .groups = "keep") %>% 
+  ggplot(aes(x=year, y=mean_lifeExp, group = continent, color = continent))+
+  geom_line()
+```
+Countries with the largest population growth
+```{r}
+gapminder %>% 
+  select(country, year, pop) %>% 
+  pivot_wider(names_from = year,
+              values_from = pop) %>% 
+  mutate(delta= `2007`-`1952`) %>% 
+  arrange(-delta)
 ```
 
