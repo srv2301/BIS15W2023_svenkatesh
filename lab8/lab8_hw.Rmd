@@ -103,7 +103,8 @@ sydneybeaches_new
 9. What was the most polluted beach in 2018?
 ```{r}
 sydneybeaches_new %>% 
-  select(site, "2018")
+  select(site, "2018") %>% 
+  arrange(-`2018`)
 ```
 The South Marouba Rockpool beach was the most polluted beach in 2018.
 

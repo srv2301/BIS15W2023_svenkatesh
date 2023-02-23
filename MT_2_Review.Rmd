@@ -4,3 +4,582 @@ output: html_document
 date: "2023-02-23"
 ---
 
+## Lab 7.1 - Recall that group_by() and summarize() work great together
+```{r}
+penguins %>% 
+  group_by(island) %>% 
+  summarize(mean_body_mass_g=mean(body_mass_g, na.rm=T)) # remember to remove those NA's!
+```
+
+Number of observations (penguins) by species and island
+```{r}
+penguins %>% 
+  group_by(island, species) %>% 
+  summarize(n_penguins=n(), .groups = 'keep')
+```
+
+`count()` works like a combination of `group_by()` and `summarize()` but just shows the number of observations
+```{r}
+penguins %>% 
+  count(island, species)
+```
+
+`summarize()` to produce distinct counts over multiple variables;
+```{r}
+penguins %>%
+  summarize(distinct_species = n_distinct(species),
+            distinct_island = n_distinct(island),
+            distinct_sex = n_distinct(sex))
+```
+`across()` - n_distinct but cleaner
+```{r}
+penguins %>%
+  summarize(across(contains("mm"), mean, na.rm=T))
+```
+
+Summarizing `n_distinct()` across all variables except `species`, `island`, and `sex`
+```{r}
+penguins %>%
+  summarize(across(!c(species, island, sex, year), 
+                   n_distinct))
+```
+
+## Lab 7.2 - NA's (naniar)
+
+Summarize the number of NA's over all of the variables
+```{r}
+msleep %>% 
+  summarise_all(~(sum(is.na(.))))
+```
+
+Can also explore a specific variable using `count()
+```{r}
+msleep %>% 
+  count(conservation, sort = TRUE)
+```
+
+if NA's are represented by "-999" then:
+```{r}
+amniota_tidy <- amniota %>% 
+  na_if("-999")
+```
+
+`miss_var_summary` provides a nice, clean summary of NA's across the data frame
+```{r}
+naniar::miss_var_summary(amniota_tidy)
+```
+
+```{r}
+msleep %>% 
+  summarise_all(~(sum(is.na(.)))) %>% 
+  naniar::miss_var_summary(msleep)
+```
+
+Number of NAs in a column sorted by taxonomic class (a certain parameter)
+```{r}
+amniota %>% 
+  group_by(class) %>% 
+  select(egg_mass_g, class) %>% 
+  naniar::miss_var_summary()
+```
+
+Finding the number & % of NA's in each column - select the columns and then try naniar function
+```{r}
+amphibio %>% 
+  select(Fos, Ter, Aqu, Arb) %>% 
+  naniar::miss_var_summary()
+```
+
+## Lab 8 - Pivoting
+
+`Tidy` data in the sense of the tidyverse follows three conventions:   
+(1) each variable has its own column  
+(2) each observation has its own row  
+(3) each value has its own cell  
+
+If column names represent values of a variable - wide pivot format
+- `pivot_longer`(cols, names_to, values_to)
+- `pivot_wider` (names_from, values_from)
+
+here() package helps you get the working directory quicker - & retrieve the dataset
+```{r}
+heartrate <- read_csv(here("lab8", "data2", "heartrate.csv"))
+```
+
+Use `pivot_longer()` to make the data tidy
+```{r}
+relig_income %>% 
+  pivot_longer(-religion,
+               names_to = "income",
+               values_to = "n_total")
+```
+
+If only some column names are values if a variable - then specify a range of columns that you want to pivot or columns that you want to stay fixed or identify columns by a prefix, remove the prefix and all NA's
+```{r}
+billboard2 <- 
+  billboard %>% 
+  pivot_longer(wk1:wk76, # a range of columns
+               names_to = "week",
+               values_to = "rank",
+               values_drop_na = TRUE #this will drop the NA's
+               )
+```
+
+```{r}
+billboard3 <- 
+  billboard %>% 
+  pivot_longer(-c(artist, track, date.entered), #specific columns
+               names_to = "week",
+               values_to = "rank",
+               values_drop_na = TRUE
+               )
+billboard3
+```
+
+```{r}
+billboard %>% 
+   pivot_longer(
+   cols = starts_with("wk"),
+   names_to = "week",
+   names_prefix = "wk",
+   values_to = "rank",
+   values_drop_na = TRUE)
+```
+
+separate function helps pull names apart in a column- differentiate with signs
+```{r}
+heartrate2 %>% 
+  separate(patient, into= c("patient", "sex"), sep = "_")
+```
+
+`unite()` is the opposite of separate()
+```{r}
+heartrate3 %>% 
+  unite(patient_sex, "patient", "sex", sep = " ")
+```
+
+Pivot wider - You use `pivot_wider()` when you have an observation scattered across multiple rows
+```{r}
+tb_data %>% 
+  pivot_wider(names_from = "key", #the observations under key will become new columns
+              values_from = "value")
+```
+
+Pivot wide for multiple columns
+```{r}
+edu_level %>% 
+pivot_wider(names_from = (education_level), #new column names come from the education_level column
+                values_from = c(mean_income, n)) #values come from two separate columns
+```
+
+Ex - Sydneybeaches dataset - Average `enterococci_cfu_100ml` by year for each beach
+```{r}
+sydneybeaches_long <- sydneybeaches %>% 
+  select(site, date, enterococci_cfu_100ml)
+```
+
+```{r}
+sydneybeaches_wide <- sydneybeaches_long %>% 
+  pivot_wider(names_from = "date",
+              values_from = "enterococci_cfu_100ml")
+```
+
+This gives you the average enterococci cfu by year and beach
+```{r}
+sydneybeaches_long_mean <- sydneybeaches_long %>% 
+  group_by(year, site) %>% 
+  summarise(enterococci_mean = mean(enterococci_cfu_100ml, na.rm = T), .groups = "keep")
+```
+
+Question - most polluted beach in 2018
+```{r}
+sydneybeaches_new %>% 
+  select(site, "2018") %>% 
+  arrange(-`2018`)
+```
+
+## Lab 9 - ggplot 1
+
+Data types - 
++ `discrete` quantitative data that only contains integers
++ `continuous` quantitative data that can take any numerical value
++ `categorical` qualitative data that can take on a limited number of values
+
+In short, **plot= data + geom_ + aesthetics**
+
+## ggplot cheatsheet -
+One variable -
+Continuous:
+- a + geom_histogram()
+- a + geom_density()
+- a + geom_area()
+Discrete:
+- a + geom_bar() - only use x=(), no y = ()
+
+Two variables -
+2 continuous:
+- a + geom_point()
+- a + geom_smooth()
+
+1 discrete & 1 continuous:
+- a + geom_col()
+- a + geom_boxplot()
+
+2 discrete:
+- a + geom_count()
+- a + geom_jitter()
+
+Three variables
+Continuous:
+- a + geom_line()
+
+ggplot Adjustments:
+- a + geom_bar(position = "dodge") - arranges elements side by side
+- a + geom_point(position = "jitter")
+- a + geom_bar(position = "stack")
+
+Themes:
+- a + theme_classic()
+- a + theme_minimal()
+- a + theme_pander()
+
+aes() function to identify the x and y variables in the plot - geom_boxplot() is used for range of our variables on the y-axis
+```{r}
+ggplot(data = iris, mapping = aes(x=Species, y=Petal.Length))+geom_boxplot()
+```
+
+Scatterplot that compares sepal length vs. sepal width - Scatter plots are good at revealing relationships that are not readily visible in the raw data
+```{r}
+iris %>% 
+  ggplot(aes(x=Sepal.Length, y=Sepal.Width))+
+  geom_point()
+```
+
+Over-plotting can be an issue. `geom_jitter()` is similar to `geom_point()` but it helps with over plotting by adding some random noise to the data and separating some of the individual points
+```{r}
+ggplot(homerange, mapping=aes(x=log10.mass, y=log10.hra))+geom_jitter()
+```
+
+Adding a regression line
+```{r}
+data + 
+  geom_smooth(method=lm, se=T)
+```
+
+`stat="identity"` allows us to map a variable to the y-axis so that we aren't restricted to counts
+```{r}
+homerange %>% 
+  filter(family=="salmonidae") %>% 
+  ggplot(aes(x=common.name, y=log10.mass))+
+  geom_bar(stat="identity")
+```
+
+Slice function - works the same as the top n function
+For the top n rows
+```{r}
+slice_head(n=5)
+```
+
+For the bottom n rows
+```{r}
+slice_tail(n = 6)
+```
+
+!!! For how many of something in each in a column - how many penguins were measured on each island?
+```{r}
+penguins %>% 
+  count(island)
+```
+
+A plot that showed the number of measured penguins for each species
+```{r}
+penguins %>% 
+  count(species) %>% 
+  ggplot(aes(x=species, y=n))+
+  geom_col()
+```
+
+To remove NA's in a column - filter(column != "NA")
+```{r}
+filter(sex!="NA")
+```
+
+```{r}
+homerange <- read_csv(here("lab9", "data", "Tamburelloetal_HomeRangeDatabase.csv"))
+homerange
+```
+
+1. There are more herbivores than carnivores in the homerange data, but how do their masses compare? Make a summary and boxplot that compares their masses. Use `log10.mass`.
+```{r}
+homerange %>% 
+  select(log10.mass, trophic.guild) %>% 
+  ggplot(aes(x=trophic.guild, y = log10.mass, fill = trophic.guild))+
+  geom_boxplot()
+```
+
+2. Have a closer look at carnivorous mammals. Summarize the range of log10.mass by family.
+```{r}
+homerange %>% 
+  filter(trophic.guild == "carnivore") %>% 
+  group_by(family) %>% 
+  select(log10.mass, family) %>% 
+  ggplot(aes(x=family, y= log10.mass))+
+  geom_boxplot()
+```
+
+3. Now use a boxplot to visualize the range of log10.mass by family of mammalian carnivore.
+```{r}
+homerange %>% 
+  filter(trophic.guild == "carnivore" & class == "mammalia") %>% 
+  select(family, log10.mass) %>% 
+  ggplot(aes(x=family, y=log10.mass, fill = family))+
+  geom_boxplot()
+  
+```
+
+To arrange the bar graph in increasing order
+```{r}
+ggplot(aes(x=reorder(CITY,n), y=n))
+```
+
+To obtain/filter out multiple names of variables in a column that start with a certain name
+```{r}
+colleges %>% 
+  filter_all(any_vars(str_detect(.,pattern="University of California")))
+```
+
+## Lab 10 - ggplot 2
+
+To flip the coordinates
+```{r}
+data + coord_flip()
+```
+
+To scale the y axis by log10 - usually used for very large values that appear as small plots
+```{r}
+data + scale_y_log10()
+```
+
+To cancel scientific notation for a session
+```{r}
+options(scipen=999)
+```
+
+Including labels of titles and axes
+```{r}
+data + labs(title="Elephant age vs. Height",
+       x="Age",
+       y="Height")
+```
+
+To adjust the size and face of the titles
+```{r}
+data +
+  theme(plot.title=element_text(size=rel(1.25), hjust=0.5)) #size_rel makes the title of the plot bigger or smaller & hjust controls title position
+```
+
+An aesthetic can be assigned to either numeric or categorical data. `fill` is a common grouping option
+```{r}
+elephants %>% 
+  ggplot(aes(x=sex, fill=sex))+
+  geom_bar()
+```
+
+Point size in geom_point()
+```{r}
+p +geom_point(size=2)
+```
+
+In a bar plot - fill will produce stacked bar plots
+```{r}
+homerange %>% 
+  ggplot(aes(x = taxon, fill = trophic.guild)) + geom_bar()
+```
+
+For a side-by-side display in a bar plot for multiple variables:
+```{r}
+homerange %>% 
+  ggplot(aes(x = taxon, fill = trophic.guild)) + geom_bar(position = "dodge")
+```
+
+To scale all the bar values to a percentage:
+```{r}
+scale_y_continuous(labels = scales::percent)
+```
+
+To adjust the angle of the text axis names
+```{r}
+theme(axis.text.x = element_text(angle = 60, hjust = 1))
+```
+
+In addition to `fill`, `group` is an aesthetic that accomplishes the same function but does not add color
+```{r}
+homerange %>% 
+  ggplot(aes(x = class, y = log10.mass, group = taxon)) +
+  geom_boxplot()
+```
+
+For a range of values - always use boxplots - What is the range of weight for each species included in the study?
+```{r}
+deserts %>% 
+  filter(weight!= "NA") %>% 
+  ggplot(aes(x=weight, y=species))+
+  geom_boxplot()
+```
+
+For a range of a new ratio created by mutating and filled by sex:
+```{r}
+deserts %>% 
+  filter(species =="albigula" | species == "spectabilis") %>% 
+  filter(weight!="NA" & hindfoot_length!= "NA" & sex != "NA") %>% 
+  mutate(w_hf_ratio = weight/hindfoot_length) %>% 
+  filter(w_hf_ratio != "NA") %>% 
+  ggplot(aes(x=species, y=w_hf_ratio, fill=sex))+
+  geom_boxplot()
+```
+
+## Lab 11 - ggplot 3
+Line plots are great when you need to show changes over time
+```{r}
+deserts2 %>% 
+  filter(species_id=="DM" | species_id=="DS") %>% 
+  group_by(year, species_id) %>% 
+  summarise(n=n(), .groups='keep') %>% 
+  ggplot(aes(x=year, y=n, group=species_id, color=species_id))+
+  geom_line()+
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+```
+
+Histograms are frequently used by biologists; they show the distribution of continuous variables (used with just x)
+```{r}
+homerange %>% 
+  ggplot(aes(x = log10.mass)) +
+  geom_histogram(alpha = 0.7, color = "white", fill = "darkolivegreen4", bins=40)+
+  labs(title = "Distribution of Body Mass")
+```
+
+COLOR
+This shows all the in-built R colors
+```{r}
+grDevices::colors()
+```
+
+Density plots are similar to histograms but they use a smoothing function to make the distribution more even and clean looking (used with just x)
+```{r}
+homerange %>% 
+  ggplot(aes(x = log10.mass)) +
+  geom_density(fill="deepskyblue4", alpha  =0.4, color = "black") #color is the color of the outline and fill is what the bar is filled with
+```
+
+Density + histograms
+```{r}
+homerange %>% 
+  ggplot(aes(x=log10.mass)) +
+  geom_histogram(aes(y = ..density..), fill = "deepskyblue4", alpha = 0.4, color = "black")+
+  geom_density(color = "red")
+```
+
+Use `case_when()` within `mutate()` to calculate a new variable from other variables
+```{r}
+homerange <- homerange %>% 
+             mutate(mass_category = case_when(log10.mass <= 1.75 ~ "small",
+                                              log10.mass > 1.75 & log10.mass <= 2.75 ~ "medium",
+                                              log10.mass > 2.75 ~ "large"))
+```
+
+Legends position
+```{r}
+theme(legend.position = "bottom",
+        axis.text.x = element_text(angle = 60, hjust=1))
+```
+
+ggthemes
+```{r}
+ls("package:ggthemes")[grepl("theme_", ls("package:ggthemes"))]
+```
+
+The [R Color Brewer](http://colorbrewer2.org/#type=sequential&scheme=BuGn&n=3) website is very helpful for getting an idea of the color palettes
+Three different palettes: 1) sequential, 2) diverging, and 3) qualitative
+```{r}
+display.brewer.pal(5,"PiYG")
+```
+
++`scale_colour_brewer()` is for points  - for scatterplots use the scale_color_brewer function
++`scale_fill_brewer()` is for fills 
+
+```{r}
+p+scale_fill_brewer(palette = " PiYG")+
+  theme(legend.position = "bottom",
+        axis.text.x = element_text(angle = 60, hjust=1))
+```
+
+Use `paleteer` to build a custom palette for consistency
+```{r}
+colors <- paletteer::palettes_d_names
+```
+
+`paleteer` is a collection of popular palettes. I really like the [`ggsci` package]
+```{r}
+my_palette <- paletteer_d("ggsci::deep_purple_material")
+```
+
+Identify `my_palette` as part of `scale_fill_manual()`
+```{r}
+p+scale_fill_manual(values=my_palette)+
+  theme(legend.position = "bottom",
+        axis.text.x = element_text(angle = 60, hjust=1))
+```
+
+There are many options for adjusting the x and y axes:
+```{r}
+homerange %>% 
+  ggplot(aes(x = log10.mass, y = log10.hra, color = locomotion)) +
+  geom_point() +
+  xlim(0, 4) +
+  ylim(1, 6)
+```
+
+Color the,e for scatterplot
+```{r}
+homerange %>% 
+  ggplot(aes(x=trophic.guild, fill = class))+
+  geom_bar(position = "dodge")+
+  scale_fill_manual(values = my_palette)
+```
+
+Faceting - It allows us to make multi-panel plots for easy comparison
+
+Comparison of a range of masses by different diet types
+```{r}
+ecosphere %>% 
+  ggplot(aes(x=diet, y=log10_mass, fill=diet))+ 
+  geom_boxplot(alpha=0.4)
+```
+
+`facet_wrap()` makes a ribbon of panels, but you can control how you want them arranged
+```{r}
+ecosphere %>% 
+  ggplot(aes(x=diet, y=log10_mass, fill=migratory_strategy))+ 
+  geom_boxplot(alpha=0.4) + 
+  facet_wrap(~migratory_strategy, ncol=3)+
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+```
+
+`facet_grid()` allows control over the faceted variable; it can be arranged in rows or columns
+rows~columns
+```{r}
+ecosphere %>% 
+  ggplot(aes(x=diet, y=log10_mass, fill=migratory_strategy))+ 
+  geom_boxplot(alpha=0.4)+ 
+  facet_grid(migratory_strategy~.)+
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+```
+
+`facet_grid()` will also allow the comparison of two categorical variables, just remember a~b where a is rows and b is columns
+```{r}
+ecosphere %>% 
+  ggplot(aes(x=log10_mass))+
+  geom_density()+
+  facet_grid(diet~habitat, scales = "free_y")
+```
+
