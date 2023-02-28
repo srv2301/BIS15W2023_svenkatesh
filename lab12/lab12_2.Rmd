@@ -67,8 +67,38 @@ There are many ways to adjust shiny apps for better visual appeal. Let's start w
 
 Let's build an app using the `homerange` data that will produce a density plot of `log10.hra` with reactivity assigned to `taxon`.
 ```{r}
-
+homerange %>% 
+  filter(taxon == "mammals") %>% 
+  ggplot(aes(x=log10.hra))+
+  geom_density(fill="steelblue", color = "black", alpha = 0.5)
 ```
+```{r}
+table(homerange$taxon)
+```
+
+
+```{r}
+library(shiny)
+
+ui <- fluidPage(titlePanel("Log 10 HomeRange by Taxon"),
+                selectInput("x", "Select Taxon", choices=c("mammals", "birds", "lake fishes", "lizards", "marine fishes", "river fishes", "snakes", "tortoises", "turtles"), 
+                selected="trophic.guild"),
+                plotOutput("plot", width="600px", height="500px")
+)
+
+server <- function(input, output, session) {
+  output$plot <- renderPlot({
+    homerange %>% 
+      filter(taxon == input$x) %>% 
+    ggplot(aes(x=log10.hra)) +
+      geom_density(color = "black", fill = "steelblue", alpha = 0.7) +
+      theme_light(base_size=18)
+  })
+}
+
+shinyApp(ui, server)
+```
+
 
 ## Adding Numeric Input
 Let's try adding a new numeric input so the user can change the size of the points on the plot with a slider. We can do this with the `sliderInput()` function. The `sliderInput()` function takes a label that the server function will use to access the value, the label that the ui will display to the user, a minimum and maximum value, a starting value, and a step size. Edit the script to include the slider input in the ui and for the server to access the input value.
@@ -83,7 +113,7 @@ ui <- fluidPage(
 )
 
 server <- function(input, output, session) {
-  session$onSessionEnded(stopApp)
+  session$onSessionEnded(stopApp) #defined the function to stop running when the app is closed
   output$plot <- renderPlot({
   ggplot(penguins, aes_string(x = input$x, y = input$y, color="species")) + 
       geom_point(size=input$pointsize) + 
