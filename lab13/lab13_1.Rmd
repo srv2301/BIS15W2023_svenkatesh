@@ -59,8 +59,36 @@ spider_list[[3]]
 ## Practice
 1. Getting an idea of the structure of lists is a bit tricky, especially when there are many elements. Try exploring the elements in `spider_list` using names(), str(), or glimpse(). For names(), you will need to specify an element using [[]].  
 ```{r}
-
+names(spider_list[[4]])
 ```
+
+```{r}
+glimpse(spider_list[[14]])
+```
+
+## Naming List Elements
+```{r}
+names <- list.files(path = "data/spiders", pattern = " .csv")
+```
+
+```{r}
+names_list <- strsplit(names, split=" .csv")
+```
+
+```{r}
+names_vec <- unlist(names_list)
+```
+
+```{r}
+names(spider_list) <- names_vec
+names(spider_list)
+```
+
+## Practice
+```{r}
+spider_list$`Del Norte`
+```
+
 
 ## Merging Files
 We are fortunate here in that all of our data frames have the same column names. This makes it easy to merge the data together with `bind_rows()` from `dplyr`. `bind_rows()` matches columns by name.
@@ -190,8 +218,25 @@ dateformat5 <- "20200922 170000"
 ## Practice 
 1. Convert each of the examples above using lubridate.
 ```{r}
-
+ymd(dateformat1)
 ```
+
+```{r}
+mdy(dateformat2)
+```
+
+```{r}
+dmy(dateformat3)
+```
+
+```{r}
+mdy_hms(dateformat4)
+```
+
+```{r}
+ymd_hms(dateformat5)
+```
+
 
 ## A few more tricks...
 Have a look at these options.
